@@ -100,7 +100,8 @@ test('selected media/library packages require actual runtime sidecars',()=>{
  assert.deepEqual(requiredTools(['nvideo.library']),['mpv/libmpv-2.dll','ffmpeg/ffmpeg.exe','ffmpeg/ffprobe.exe']);
  assert(!requiredTools(['nvideo.library']).some(x=>x.includes('yt-dlp')));
 });
-\ntest('custom Auth HTTPS host is allowed by DEV and RELEASE WebView2 CSP',()=>{
+
+test('custom Auth HTTPS host is allowed by DEV and RELEASE WebView2 CSP',()=>{
  const config=JSON.parse(readFileSync(new URL('../src-tauri/tauri.conf.json',import.meta.url),'utf8'));
  const real='https://login.example.org/neondb/auth';
  const override=authCspOverride(config,real);
@@ -110,8 +111,8 @@ test('selected media/library packages require actual runtime sidecars',()=>{
  assert.ok(directive('connect-src').includes('https://login.example.org'));
  assert.ok(directive('frame-src').includes('https://login.example.org'));
  assert.ok(!csp.includes('auth.example.invalid'));
- assert.ok(csp.includes(\"script-src 'self' \"));
- assert.ok(csp.includes(\"media-src 'self' \"));
+ assert.ok(csp.includes("script-src 'self' "));
+ assert.ok(csp.includes("media-src 'self' "));
  assert.equal(config.app.security.csp,original,'do not mutate checked-in config');
  assert.ok(authCspOverride(config).app.security.csp.includes('https://auth.example.invalid'));
  for(const invalid of ['http://localhost:5000/auth','https://user:password@login.example.org/auth','javascript:alert(1)','invalid-url']){
@@ -119,6 +120,6 @@ test('selected media/library packages require actual runtime sidecars',()=>{
  }
  const released=readFileSync(new URL('./release-build.mjs',import.meta.url),'utf8');
  const developed=readFileSync(new URL('./run-portfolio-dev.mjs',import.meta.url),'utf8');
- assert.match(released,/plan\\.tauriConfig\\.app=serviceCsp\\.app/);
- assert.match(developed,/env\\.TAURI_CONFIG=JSON\\.stringify\\(authCspOverride/);
+ assert.match(released,/plan\.tauriConfig\.app=serviceCsp\.app/);
+ assert.match(developed,/env\.TAURI_CONFIG=JSON\.stringify\(authCspOverride/);
 });
