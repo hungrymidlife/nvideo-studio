@@ -1,0 +1,3 @@
+/* Fingerprints and plugin IDs must remain readable in the permission dialog. */
+.plugin-action-targets div{white-space:normal;overflow-wrap:anywhere;text-overflow:clip;}
+.plugin-action-overlay .nvideo-confirm-box{max-width:560px;}

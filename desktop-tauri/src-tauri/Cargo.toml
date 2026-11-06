@@ -1,0 +1,73 @@
+[package]
+name = "nvideo-studio"
+version = "0.1.0"
+description = "NVideo Studio local library and community desktop"
+authors = ["Kone"]
+edition = "2021"
+license = "GPL-3.0-or-later"
+
+[lib]
+name = "nvideo_studio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+serde_json = "1"
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+tauri = { version = "2.12.5", features = ["tray-icon", "unstable"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
+sha2 = "0.10"
+ed25519-dalek = { version = "2.2", default-features = false, features = ["std"] }
+blake2 = "0.10" # Python hashlib.blake2b(digest_size=20) smart scan parity
+uuid = { version = "1", features = ["v4"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls", "json"] }
+base64 = "0.22"
+rusqlite = { version = "0.32", features = ["bundled", "backup"] }
+sha1 = "0.10"
+trash = "5.2"
+
+[target.'cfg(windows)'.dependencies]
+# Use the exact WebView2 COM bindings resolved by Tauri 2.12.5.
+webview2-com = "=0.39.1"
+windows = { version = "=0.62.2", features = ["Win32_System_Com"] }
+
+windows-sys = { version = "0.61.2", features = [
+  "Win32_Foundation",
+  "Win32_System_Diagnostics_ToolHelp",
+  "Win32_System_Threading",
+  "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_Graphics_Gdi",
+] }
+
+regex = "1"
+encoding_rs = "0.8"
+# Decode WebP / AVIF / JPEG / PNG pages for pure-Rust PDF export.
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "avif", "gif", "bmp", "tiff", "ico"] }
+
+[features]
+# Default developer builds contain only the retained library, board and manager.
+# Restricted builds MUST opt in to native-selective with --no-default-features.
+# The release builder binds native-selective to the validated frontend allowlist.
+default = [
+  "plugin-library",
+  "plugin-board", "dev-plugin-manager"
+]
+native-selective = []
+# Uses the same allowlist with developer-only plugin manager in local debug builds.
+dev-selective = []
+plugin-library = []
+plugin-board = []
+dev-plugin-manager = []
+player-probe = []
+
+[[example]]
+name = "player-render-probe"
+path = "examples/player_render_probe.rs"
+required-features = ["player-probe"]

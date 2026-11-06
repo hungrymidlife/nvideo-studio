@@ -1,0 +1,48 @@
+name: NVideo architecture and Windows Rust checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    name: Frontend tests and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: desktop-tauri
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: desktop-tauri/package-lock.json
+      - name: Public snapshot safety scan
+        run: node ../scripts/audit-public-snapshot.mjs ..
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Plugin architecture regressions
+        run: npm run test:architecture
+      - name: Existing application and mobile regressions
+        run: npm run test:safety-ui
+      - name: Reader layout regressions
+        run: npm run test:reader-layout
+      - name: TypeScript and Vite production build
+        run: npm run build
+  rust-windows:
+    name: Native Rust compilation on Windows
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop-tauri/src-tauri -> target
+      - name: Rust check
+        run: cargo check --manifest-path desktop-tauri/src-tauri/Cargo.toml

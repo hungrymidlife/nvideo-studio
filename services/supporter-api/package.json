@@ -1,0 +1,14 @@
+{
+  "name": "nvideo-supporter-api",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "jose": "^6.0.0",
+    "pg": "^8.16.0"
+  },
+  "scripts": {
+    "test": "node --test supporter.test.mjs",
+    "bundle": "node bundle.mjs"
+  },
+  "license": "GPL-3.0-or-later"
+}

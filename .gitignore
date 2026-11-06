@@ -1,0 +1,95 @@
+# Python/JS/Rust compiled output
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+ENV/
+node_modules/
+dist/
+build/
+target/
+**/target/
+*.tsbuildinfo
+*.pdb
+*.obj
+*.tmp
+*.bak
+*.orig
+*.before_*
+*.before-*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
+*.key
+*.secret
+*.token
+credentials*
+secrets*
+settings.local.json
+# Library and runtime data
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+**/diagnostics/
+**/logs/
+*.log
+**/cache/
+**/caches/
+chrome_debug_profile/
+downloads/
+downloads_temp/
+output/
+exports/
+# Content archives & media
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.webm
+*.mp3
+*.m4a
+*.flac
+*.srt
+*.ass
+*.zip
+*.7z
+*.rar
+# User-supplied runtime executables, drivers and GoodbyeDPI config
+*.exe
+*.dll
+*.sys
+*.bin
+*.msi
+*.msix
+tools/goodbye_dpi/
+tools/mpv/*
+!desktop-tauri/tools/mpv/INSTALL_INFO.txt
+tools/yt-dlp/
+tools/ffmpeg/
+whitelist.txt
+whitelist_inven.txt
+# Legacy archives/backups
+_patch_backups/
+_refactor_backups/
+_backup_refactor_stages/
+_project_source_exports/
+# Dependency lockfiles are committed for reproducible public builds.
+
+# Never ignore TypeScript source (*.ts).
+
+# Agent execution scratch
+.superpowers/
+
+release-artifacts/
+portable-dist/

@@ -1,0 +1,18 @@
+node_modules/
+dist/
+dist-plugin-*/
+.vite/
+src-tauri/target/
+target/
+src-tauri/gen/schemas/
+# Preserve package-lock.json and Cargo.lock in future public builds.
+*.log
+npm-debug.log*
+.env
+.env.*
+
+# Generated portable distribution (never commit EXEs, user-sidecars or ZIPs)
+portable-dist/
+
+# Verified selective Windows outputs
+release-artifacts/

@@ -1,0 +1,2 @@
+/* Stage18 backwards-compatible stylesheet entrypoint. */
+@import './plugins/library/views/LibraryWorkspace.css';

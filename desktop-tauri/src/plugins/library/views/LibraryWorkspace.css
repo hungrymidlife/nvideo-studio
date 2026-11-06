@@ -1,0 +1,262 @@
+.shelf{background:var(--panel);border:1px solid var(--line);border-radius:16px;min-height:560px;overflow:hidden}
+.shelf button{display:inline-flex;align-items:center;gap:6px;color:var(--text);border:1px solid var(--line);border-radius:9px;background:var(--panel-hover);padding:9px 13px}
+.shelf button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-2)}
+.shelf-top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 23px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.shelf-crumb{display:flex;gap:10px;align-items:center;color:var(--muted)}
+.shelf-crumb button{border:0;background:transparent;padding:7px;color:var(--accent-2)}
+.shelf-search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;background:var(--field);padding:4px 6px 4px 13px}
+.shelf-search input{background:transparent;border:0;outline:none;min-width:215px;width:260px;color:var(--text);padding:7px}
+.shelf-toolbar,.shelf-filters{display:flex;flex-wrap:wrap;align-items:center;gap:9px;padding:14px 20px;border-bottom:1px solid var(--line)}
+.shelf-filters{background:var(--field);gap:12px}
+.shelf-filters label{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
+.shelf-filters select,.shelf-filters input:not([type=checkbox]),.shelf-modal select,.shelf-modal textarea{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:8px;border-radius:7px}
+.shelf-filters input[type=checkbox]{accent-color:var(--accent)}
+.shelf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:16px;padding:22px;align-content:start}
+.shelf-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:8px;padding:18px}
+.shelf-card{background:var(--panel-hover);border:1px solid var(--line);border-radius:13px;padding:17px;min-height:194px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.shelf-card:hover{border-color:var(--accent)}
+.shelf-card-hero{display:flex;align-items:center;justify-content:space-between;color:var(--accent-2)}
+.shelf-card-hero>input{accent-color:var(--accent)}
+.shelf-card-hero>button{margin-left:auto;background:transparent;border:0}
+.shelf-card-title{font-size:13px;font-weight:700;white-space:normal;overflow-wrap:anywhere;text-align:left;padding:0!important;background:transparent!important;border:0!important}
+.shelf-card small{color:var(--muted)}
+.shelf-card p{color:var(--subtle);white-space:nowrap;text-overflow:ellipsis;overflow:hidden;margin:0}
+.shelf-card-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:6px}
+.shelf-card-actions button{font-size:11px;padding:5px 7px}
+.shelf-pages{display:flex;align-items:center;justify-content:center;gap:9px;padding:17px;border-top:1px solid var(--line)}
+.shelf-pages span{margin-right:auto;color:var(--muted)}
+.shelf-pages button{padding:6px 9px}
+.shelf-hint{padding:12px 21px;border-top:1px solid var(--line);color:var(--muted);line-height:1.6;font-size:11px}
+.shelf-hint button{padding:0;color:var(--accent-2);background:transparent;border:0;font-size:11px}
+.shelf-error,.shelf-notice{padding:12px 20px;border-bottom:1px solid var(--line);color:var(--danger)}
+.shelf-notice{color:var(--green);display:flex;justify-content:space-between}
+.shelf-empty{padding:90px 20px;display:flex;flex-direction:column;align-items:center;gap:15px;color:var(--muted)}
+.shelf-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);display:grid;place-items:center;z-index:120}
+.shelf-modal{background:var(--panel);border:1px solid var(--line);padding:25px;border-radius:14px;width:min(680px,90vw);display:flex;flex-direction:column;gap:15px;max-height:90vh;overflow:auto}
+.shelf-modal h3{margin:0;overflow-wrap:anywhere}
+.shelf-modal>small{overflow-wrap:anywhere;color:var(--muted)}
+.shelf-modal>label{display:flex;gap:10px;flex-direction:column}
+.shelf-modal .shelf-toolbar{padding:0;border:0}
+@media(max-width:1050px){.shelf-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}.shelf-search input{width:180px}}
+
+.shelf-manual-groups{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 20px;border-bottom:1px solid var(--line)}
+.shelf-manual-groups>strong{margin-right:7px;color:var(--accent-2)}
+.shelf-manual-groups>div{display:flex;gap:3px;flex-wrap:wrap;padding:4px;background:var(--field);border-radius:9px}
+.shelf-manual-groups button{padding:5px 8px;font-size:11px}
+.shelf-scan-status{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--field);color:var(--muted)}
+.shelf-scan-status span{min-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shelf-scan-status progress{flex:1;accent-color:var(--accent);height:10px;max-width:470px}
+.shelf-scan-failure{
+  display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;
+  padding:12px 20px;border-bottom:1px solid var(--line);
+  background:var(--field);color:var(--danger)
+}
+.shelf-scan-failure strong{white-space:nowrap}
+.shelf-scan-failure-detail{
+  flex:1 1 380px;min-width:0;white-space:pre-wrap;
+  overflow-wrap:anywhere;user-select:text;line-height:1.5
+}
+.shelf-scan-failure button{margin-left:auto;flex-shrink:0}
+
+.shelf-cover{width:100px;height:100px;border-radius:10px;object-fit:cover;display:block;max-width:100%;margin:auto}
+.shelf-cover-placeholder{display:flex;width:60px;height:60px;align-items:center;justify-content:center;border-radius:12px;background:var(--accent-bg)}
+.shelf-card-hero{min-height:93px}
+
+/* Manual author groups stay collapsed until explicitly opened. */
+.shelf-group-section{border-bottom:1px solid var(--line);background:var(--field)}
+.shelf .shelf-group-toggle{display:flex;width:100%;align-items:center;gap:10px;border:0;border-radius:0;padding:13px 21px;background:transparent;text-align:left;color:var(--accent-2)}
+.shelf-group-toggle-hint{color:var(--muted);font-size:12px;margin-left:auto}
+.shelf-group-chevron{transition:transform .16s ease}
+.shelf-group-chevron.open{transform:rotate(180deg)}
+.shelf-group-controls{display:flex;align-items:center;justify-content:flex-end;gap:9px;padding:8px 20px;color:var(--muted)}
+.shelf-group-controls .shelf-search{margin-right:auto}
+.shelf-manual-groups{max-height:290px;overflow-y:auto;align-content:start}
+
+/* Keyboard navigation and multi-selection visibility. */
+.shelf-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shelf-card[aria-selected="true"]{background:var(--accent-bg);border-color:var(--accent-2)}
+.shelf-detail-meta{display:flex;flex-direction:column;gap:5px;padding:11px;border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}
+.shelf-detail-tags{display:flex;flex-wrap:wrap;gap:5px;max-height:140px;overflow-y:auto}
+.shelf .shelf-detail-tags button{padding:4px 8px;font-size:11px}
+.shelf-cache-manager{width:min(850px,94vw)}
+.shelf-cache-heading{display:flex;align-items:center;justify-content:space-between}
+.shelf-cache-rows{max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:9px}
+.shelf-cache-row{display:flex;gap:12px;align-items:center;padding:11px;background:var(--field);border:1px solid var(--line);border-radius:10px}
+.shelf-cache-row div{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.shelf-cache-row small{color:var(--muted);overflow-wrap:anywhere}
+.shelf-cache-row>span{white-space:nowrap}
+
+
+/* Cover-first library: artwork fills the entire selectable surface. */
+.shelf{--shelf-highlight:var(--accent);background:var(--background);border-color:rgba(112,145,178,.17)}
+.shelf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(174px,1fr));gap:14px;padding:20px;align-content:start}
+.shelf-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:13px;padding:20px}
+.shelf-card{isolation:isolate;position:relative;display:block;min-height:0;padding:0;aspect-ratio:0.75;overflow:hidden;
+  border-radius:12px;background:var(--panel);border:2px solid rgba(177,201,221,.1);
+  box-shadow:0 9px 24px rgba(0,0,0,.19);cursor:default;
+  user-select:none;-webkit-user-select:none;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.shelf-card:hover{transform:translateY(-3px);border-color:rgba(115,178,235,.62);box-shadow:0 15px 31px rgba(0,0,0,.3)}
+.shelf-card[aria-selected="true"]{background:var(--panel);border-color:var(--accent);box-shadow:0 0 0 2px rgba(70,161,245,.36),0 12px 28px rgba(0,0,0,.34)}
+.shelf-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.shelf-card-cover{position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.shelf-card-cover .shelf-cover{display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;
+  margin:0;border-radius:0;object-fit:cover;object-position:center top;filter:saturate(.93);
+  transition:transform .35s ease,filter .25s ease}
+.shelf-card:hover .shelf-cover{transform:scale(1.045);filter:saturate(1.08)}
+.shelf-card-cover .shelf-cover-placeholder,.shelf-root-art{position:absolute;inset:0;width:100%;height:100%;
+  border-radius:0;display:flex;justify-content:center;align-items:center;color:var(--muted);
+  background:radial-gradient(circle at 32% 28%,color-mix(in srgb,var(--accent),transparent 88%),transparent 48%),linear-gradient(140deg,var(--panel-hover),var(--field))}
+.shelf-root-art svg{width:74px;height:74px;stroke-width:1.3;opacity:.75}
+.shelf-card::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(180deg,rgba(3,9,19,.15) 0%,transparent 38%,rgba(3,9,19,.12) 51%,rgba(2,7,17,.9) 100%)}
+.shelf-card-caption{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;flex-direction:column;gap:4px;padding:42px 12px 13px;
+  pointer-events:none}
+.shelf-card-caption strong{font-size:13px;line-height:1.4;font-weight:700;color:#f5faff;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  overflow-wrap:anywhere;text-shadow:0 2px 7px #000}
+.shelf-card-caption span{font-size:11px;line-height:1.4;color:#b7cce4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 6px #000}
+.shelf-best{position:absolute;top:9px;right:9px;z-index:3;display:flex;justify-content:center;align-items:center;
+  width:29px;height:29px;border-radius:50%;color:#ffd66e;background:rgba(8,17,33,.87);box-shadow:0 1px 10px #091422}
+.shelf-picked{position:absolute;z-index:3;left:9px;top:9px;width:25px;height:25px;display:grid;place-items:center;
+  background:#278fe4;border-radius:50%;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.shelf-selection-bar{position:sticky;top:0;z-index:7;padding:10px 19px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  background:var(--panel-hover);border-bottom:1px solid var(--line);backdrop-filter:blur(15px)}
+.shelf-selection-bar>span{display:flex;align-items:center;gap:7px;font-weight:700;color:var(--text);margin-right:8px}
+.shelf .shelf-danger-action{color:var(--danger);border-color:rgba(231,92,112,.4);background:rgba(123,38,53,.18)}
+.shelf-context-menu{position:fixed;z-index:1000;width:238px;max-height:min(550px,82vh);overflow-y:auto;
+  background:var(--panel);border:1px solid rgba(115,161,201,.3);border-radius:12px;box-shadow:0 18px 52px rgba(0,0,0,.57);
+  padding:7px;display:flex;flex-direction:column;gap:2px;user-select:none}
+.shelf-context-heading{font-size:11px;color:var(--muted);padding:8px 10px;border-bottom:1px solid rgba(125,161,197,.15);
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:4px}
+.shelf .shelf-context-menu button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;
+  color:var(--text);font-size:12px;white-space:nowrap;padding:9px 10px;border-radius:7px;text-align:left}
+.shelf .shelf-context-menu button:hover{background:#245072;color:#fff}
+.shelf .shelf-context-menu button.danger{color:var(--danger)}
+.shelf-context-divider{height:1px;background:rgba(125,161,197,.2);margin:5px 4px}
+.shelf-detail-modal{width:min(590px,92vw)}
+.shelf-card>button,.shelf-card-actions,.shelf-card-hero{display:none}
+@media(min-width:1550px){.shelf-grid{grid-template-columns:repeat(auto-fill,minmax(185px,1fr))}}
+@media(max-width:700px){.shelf-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px}
+  .shelf-card-caption{padding:34px 9px 10px}.shelf-card-caption strong{font-size:12px}}
+
+
+.shelf-group-picker{width:min(540px,90vw);padding:20px}
+.shelf-group-picker>p{color:var(--muted);margin:0}
+.shelf-group-picker>input{background:var(--field);color:var(--text);border:1px solid var(--line);
+  border-radius:9px;padding:11px 12px;outline:none}
+.shelf-group-picker>input:focus{border-color:var(--accent)}
+.shelf-group-picker-list{display:flex;flex-direction:column;gap:5px;overflow-y:auto;max-height:46vh;padding:4px}
+.shelf .shelf-group-picker-list button{width:100%;padding:12px 11px;display:flex;align-items:center;gap:9px;
+  text-align:left;background:var(--panel-hover);border:1px solid transparent;white-space:normal}
+.shelf-group-picker-list button:hover{border-color:var(--accent)}
+.shelf-group-picker-list small{margin-left:auto;color:var(--muted);white-space:nowrap}
+
+
+/* 2026-10-30: Modern compact filter rail. No native select chrome for browsing. */
+.shelf-filters{display:flex;flex-wrap:wrap;gap:11px 19px;align-items:center;padding:11px 17px;background:var(--field)}
+.shelf-filter-unit{display:flex;align-items:center;gap:9px;min-height:34px}
+.shelf-filter-label{font-size:11px;letter-spacing:.03em;color:var(--muted);white-space:nowrap}
+.shelf .shelf-toggle-pill{display:inline-flex;align-items:center;gap:10px;justify-content:center;min-width:110px;
+  height:33px;background:var(--panel-hover);border:1px solid var(--line);border-radius:10px;padding:0 12px;
+  color:var(--text);font-size:12px;font-weight:700;transition:background .16s,border-color .16s}
+.shelf .shelf-toggle-pill:hover{background:var(--panel-hover);border-color:var(--accent)}
+.shelf-toggle-pill span{color:var(--muted)}
+.shelf-filter-sort{flex:1 1 auto;min-width:280px}
+.shelf-sort-options{display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:4px;background:var(--field);
+  border:1px solid var(--line);border-radius:11px}
+.shelf .shelf-sort-options button{font-size:11px;font-weight:600;white-space:nowrap;color:var(--muted);
+  border:0;background:transparent;border-radius:7px;padding:7px 10px;transition:all .16s}
+.shelf .shelf-sort-options button:hover{color:#fff;background:var(--panel-hover)}
+.shelf .shelf-sort-options button.active{background:#22689c;color:#fff;box-shadow:0 1px 6px #071525}
+.shelf .shelf-best{display:grid!important;place-items:center;cursor:pointer;border:1px solid transparent;
+  padding:0;width:31px;height:31px;z-index:4;transition:transform .14s,background .14s,color .14s}
+.shelf .shelf-best:hover{transform:scale(1.12);background:var(--panel-hover);border-color:#f7cd6c}
+.shelf .shelf-best.inactive{opacity:.57;pointer-events:auto;color:#c2d5e8;background:rgba(8,17,33,.8)}
+.shelf-card:hover .shelf-best.inactive,.shelf-card:focus-within .shelf-best.inactive{opacity:1}
+.shelf .shelf-best.active{color:#ffd66e;background:rgba(8,17,33,.87)}
+@media(max-width:1200px){.shelf-filter-sort{order:3;flex-basis:100%}}
+
+
+.shelf-size-choice{position:relative;z-index:15}
+.shelf-size-choice summary{list-style:none;cursor:pointer;display:flex;gap:6px;align-items:center;
+  border:1px solid var(--line);background:var(--panel-hover);border-radius:9px;padding:8px 10px;color:var(--text);font-weight:650;font-size:12px}
+.shelf-size-choice summary::-webkit-details-marker{display:none}
+.shelf-size-choice[open] summary{border-color:var(--accent)}
+.shelf-size-menu{position:absolute;top:calc(100% + 5px);right:0;display:grid;min-width:100px;gap:3px;
+  padding:5px;border-radius:11px;border:1px solid var(--line);background:var(--panel);
+  box-shadow:0 16px 30px #071222b8}
+.shelf .shelf-size-menu button{border:0;background:transparent;padding:8px;color:var(--muted);font-size:12px;text-align:left}
+.shelf .shelf-size-menu button.active,.shelf .shelf-size-menu button:hover{background:#246394;color:white}
+
+
+/* Keep action row in the flow even with zero selection: no jump on first click. */
+.shelf .shelf-selection-bar{min-height:56px;box-sizing:border-box;position:relative;top:auto;
+  padding:10px 19px;align-content:center}
+.shelf .shelf-selection-bar button:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+/* Crisp portrait assets are now generated at 420x580 instead of stretching Qt6 116x116. */
+.shelf-card-cover .shelf-cover{filter:none;image-rendering:auto;backface-visibility:hidden}
+.shelf-card:hover .shelf-cover{filter:none}
+
+
+/* Page number jump: stays inside the existing paging row. */
+.shelf-pages{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.shelf-page-jump{display:flex;align-items:center;gap:5px;margin:0 4px}
+.shelf-page-jump input{max-width:74px;width:74px;padding:7px 5px;text-align:center;
+ color:var(--text);background:var(--field);border:1px solid var(--line);border-radius:8px;outline:none}
+.shelf-page-jump input:focus{border-color:var(--accent)}
+.shelf .shelf-page-jump button{font-size:11px;padding:7px 10px}
+
+.shelf-card-caption .shelf-popularity{color:#a4d9ff;font-weight:650;font-size:10px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shelf-card-cover .shelf-cover-placeholder,.shelf-root-art{color:var(--accent)}
+
+/* Animated cloud cover. An explicit ON selection opts into motion regardless of
+ * Windows' reduced-motion default; use OFF to disable. Cards remain clickable. */
+.shelf .shelf-fog-toggle{border-color:rgba(164,199,223,.32);color:var(--muted)}
+.shelf .shelf-fog-toggle.active{background:rgba(103,150,188,.20);
+  border-color:rgba(154,207,243,.65);color:#d6efff}
+.shelf-fog-strength{display:inline-flex;align-items:center;gap:9px;
+  color:var(--muted);font-size:12px;white-space:nowrap}
+.shelf-fog-strength input[type=range]{width:130px;height:6px;cursor:pointer;
+  accent-color:var(--accent);margin:0}
+.shelf-fog-strength input[type=range]:disabled{opacity:.38;cursor:not-allowed}
+.shelf-fog-strength output{font-variant-numeric:tabular-nums;min-width:37px;
+  color:var(--text);font-size:12px;text-align:right}
+/* Background and blur are static. The two separately animated layers below
+ * physically translate across the cover so motion is obvious over time. */
+.shelf-cover-fog{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;
+  background:rgba(225,237,244,var(--shelf-fog-wash));
+  -webkit-backdrop-filter:blur(var(--shelf-fog-blur));
+  backdrop-filter:blur(var(--shelf-fog-blur))}
+.shelf-cover-fog::before,.shelf-cover-fog::after{content:"";position:absolute;
+  inset:-10% -65%;pointer-events:none}
+/* Large, visibly shaped cloud banks sail horizontally rather than slowly
+ * breathing in place; blurred edges keep them soft instead of blocky. */
+.shelf-cover-fog::before{
+  opacity:calc(var(--shelf-fog-cloud) * .94);
+  filter:blur(13px);
+  background:
+    radial-gradient(ellipse 18% 31% at 14% 38%,rgba(251,253,255,.92) 12%,rgba(247,251,255,.52) 49%,transparent 82%),
+    radial-gradient(ellipse 21% 25% at 43% 62%,rgba(234,246,252,.96) 7%,rgba(229,241,250,.55) 46%,transparent 81%),
+    radial-gradient(ellipse 18% 28% at 77% 27%,rgba(252,253,255,.95) 10%,rgba(237,247,252,.52) 47%,transparent 81%);
+  animation:shelf-fog-drift-a 24s linear infinite alternate}
+.shelf-cover-fog::after{
+  opacity:calc(var(--shelf-fog-cloud) * .76);
+  filter:blur(17px);
+  background:
+    radial-gradient(ellipse 22% 24% at 21% 75%,rgba(242,250,255,.91) 13%,rgba(225,241,252,.55) 51%,transparent 83%),
+    radial-gradient(ellipse 16% 35% at 56% 32%,rgba(250,252,255,.86) 13%,rgba(241,249,255,.45) 46%,transparent 79%),
+    radial-gradient(ellipse 20% 26% at 87% 71%,rgba(234,245,252,.93) 12%,rgba(224,238,250,.52) 48%,transparent 83%);
+  animation:shelf-fog-drift-b 32s linear infinite alternate}
+.shelf-card:nth-child(3n + 2) .shelf-cover-fog::before{animation-delay:-8s}
+.shelf-card:nth-child(3n + 3) .shelf-cover-fog::before{animation-delay:-16s}
+.shelf-card:nth-child(2n) .shelf-cover-fog::after{animation-delay:-12s}
+.shelf-card:nth-child(5n) .shelf-cover-fog::after{animation-delay:-23s}
+@keyframes shelf-fog-drift-a{
+  from{transform:translate3d(-24%,-2%,0)}
+  to{transform:translate3d(24%,2%,0)}
+}
+@keyframes shelf-fog-drift-b{
+  from{transform:translate3d(21%,2%,0)}
+  to{transform:translate3d(-25%,-2%,0)}
+}

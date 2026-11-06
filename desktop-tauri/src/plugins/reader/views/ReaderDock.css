@@ -1,0 +1,420 @@
+/* KoneReader-inspired bottom work explorer. The panel floats over the book. */
+.reader-explorer{position:absolute;inset:auto 12px 0;z-index:212;height:min(325px,58vh);
+  display:flex;flex-direction:column;min-width:0;overflow:hidden;box-sizing:border-box;
+  border:1px solid rgba(166,187,211,.25);border-bottom:0;border-radius:16px 16px 0 0;
+  background:linear-gradient(165deg,rgba(35,44,58,.985),rgba(16,23,35,.99));
+  color:#eaf1fb;box-shadow:0 -16px 50px rgba(0,0,0,.57);backdrop-filter:blur(18px);
+  transform:translateY(calc(100% - 8px));opacity:.3;pointer-events:none;
+  transition:transform .19s ease-out,opacity .19s ease-out}
+.reader-explorer.is-open{transform:translateY(0);opacity:1;pointer-events:auto}
+.reader-explorer-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  flex:none;padding:6px 16px;border-bottom:1px solid #41506470;font-size:12px}
+.reader-explorer-filters label{display:flex;align-items:center;gap:5px}
+.reader-explorer-filters input,.reader-explorer-filters select{
+  background:#162337;color:#eaf1fb;border:1px solid #4a617e;border-radius:6px;
+  padding:4px;max-width:170px;min-width:0}
+.reader-explorer-filters button{padding:4px 6px;border:1px solid #4a617e;border-radius:6px}
+.reader-explorer-grip{height:11px;flex:0 0 11px;display:flex;align-items:center;justify-content:center}
+.reader-explorer-grip span{height:3px;width:42px;background:#798c9f;border-radius:50px}
+.reader-explorer-toolbar{display:flex;align-items:center;gap:14px;padding:5px 16px 9px;min-height:37px;flex:none}
+.reader-explorer-brand{display:flex;align-items:center;gap:9px;white-space:nowrap}
+.reader-explorer-brand>svg{color:#a9c7ef}
+.reader-explorer-brand div{display:flex;flex-direction:column;gap:2px}
+.reader-explorer-brand strong{font-weight:750;font-size:14px}
+.reader-explorer-brand small{font-size:10px;color:#91a3b8}
+.reader-explorer-crumbs{display:flex;align-items:center;gap:4px;min-width:0;flex:1;overflow:hidden}
+.reader-explorer-crumbs button{flex:0 1 auto;min-width:0;max-width:175px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reader-explorer-crumbs button:not(:last-child):after{content:'›';margin-left:7px;opacity:.45}
+.reader-explorer-crumbs button.active{color:#f5fbff;background:#364960}
+.reader-explorer-count{font-size:11px;white-space:nowrap;color:#a9b7c9}
+.reader-explorer button{border:1px solid transparent;background:transparent;color:inherit;
+  font:inherit;cursor:pointer}
+.reader-explorer button:focus-visible,.reader-explorer select:focus-visible,.reader-explorer input:focus-visible{
+  outline:2px solid #98bdf4;outline-offset:2px}
+.reader-explorer button:disabled{opacity:.35;cursor:default}
+.reader-explorer-toolbar button{border-radius:7px;padding:5px 7px;font-size:12px}
+.reader-explorer-toolbar button:hover:not(:disabled){background:rgba(136,165,205,.16)}
+.reader-explorer-controls{display:flex;gap:10px;padding:1px 16px 10px;flex:none;border-bottom:1px solid #41506470}
+.reader-explorer-categories,.reader-explorer-search{display:flex;align-items:center;gap:9px;
+  background:rgba(10,17,27,.62);border:1px solid rgba(166,187,210,.2);
+  border-radius:9px;padding:0 10px;height:37px;min-width:0}
+.reader-explorer-categories{flex:0 1 235px}
+.reader-explorer-categories svg{color:#acc4de;flex:none}
+.reader-explorer-categories select{min-width:0;width:100%;background:transparent;color:#dbe8f9;
+  border:0;outline:0;font-size:12px;cursor:pointer}
+.reader-explorer-categories option{background:#263349}
+.reader-explorer-search{flex:1}
+.reader-explorer-search svg{color:#95aac0;flex:none}
+.reader-explorer-search input{width:0;flex:1;height:100%;background:transparent;border:0;
+  outline:0;color:#f0f6ff;font:12px/1.4 inherit}
+.reader-explorer-search input::placeholder{color:#8b9ba9}
+.reader-explorer-search button{font-size:19px;color:#a9bbcd}
+.reader-explorer-reset{white-space:nowrap;display:flex;gap:6px;align-items:center;
+  border:1px solid #4a617e!important;padding:8px 11px!important;border-radius:8px}
+.reader-explorer-reset:hover{background:#34465a}
+.reader-explorer-strip{display:flex;flex:1;min-height:0;gap:11px;overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:thin;scrollbar-color:#63738a #152130;
+  user-select:none;cursor:grab;overscroll-behavior-x:contain;
+  padding:13px 16px 9px}
+.reader-explorer-strip:active{cursor:grabbing}
+.reader-explorer-card{display:flex;flex:0 0 124px;flex-direction:column;gap:5px;min-width:0;
+  align-items:stretch;padding:0!important;text-align:left!important;
+  border-radius:9px!important;overflow:hidden;
+  transition:transform .11s ease,background .11s ease}
+.reader-explorer-card:hover{transform:translateY(-2px);background:rgba(179,200,224,.08)}
+.reader-explorer-card.current .reader-explorer-cover{box-shadow:0 0 0 2px #b0d2f1}
+.reader-explorer-card .reader-explorer-cover{position:relative;min-height:0;flex:1;display:flex;
+  justify-content:center;align-items:center;overflow:hidden;background:#131d2c;
+  border:1px solid #495568;border-radius:7px;color:#8eafc7}
+.reader-explorer-card .reader-explorer-cover img{width:100%;height:100%;
+  object-fit:contain;display:block;pointer-events:none}
+.reader-explorer-card strong{font-size:11px;font-weight:600;overflow:hidden;
+  white-space:nowrap;text-overflow:ellipsis;padding:0 2px}
+.reader-explorer-card small{font-size:10px;color:#94a8bc;padding:0 2px 2px}
+.reader-explorer-folder-tag,.reader-explorer-current-tag{position:absolute;bottom:5px;left:5px;
+  background:#345776d9;color:#eff7ff;padding:3px 5px;border-radius:4px;font:10px/1 sans-serif}
+.reader-explorer-current-tag{left:auto;right:5px;background:#6e5734e6}
+.reader-explorer-foot{display:flex;justify-content:space-between;gap:12px;align-items:center;
+  padding:7px 16px;color:#91a5bc;font-size:10px;flex:none;border-top:1px solid #36435960}
+.reader-explorer-error,.reader-explorer-hint{padding:6px 16px;background:#68394e;
+  color:#fff0f1;font-size:11px;flex:none}
+.reader-explorer-hint{background:#353f51}
+.reader-explorer-empty{flex:1;display:grid;place-items:center;color:#a5b8ce;
+  text-align:center;font-size:13px;min-width:250px}
+@media(max-width:720px){
+  .reader-explorer{inset:auto 3px 0;height:min(330px,70vh)}
+  .reader-explorer-toolbar{gap:7px;padding:6px 10px}
+  .reader-explorer-brand small,.reader-explorer-count{display:none}
+  .reader-explorer-controls{gap:6px;padding:3px 9px 9px}
+  .reader-explorer-categories{flex-basis:150px}
+  .reader-explorer-reset{font-size:0}
+  .reader-explorer-card{flex-basis:105px}
+}
+
+/* Explicit author-folder / all-work modes. Keep these visually connected
+   to the navigator title rather than mixing them into the folder selector. */
+.reader-explorer-view-switch{
+  display:inline-flex;align-items:center;flex:none;gap:2px;padding:3px;
+  border:1px solid rgba(156,184,215,.22);border-radius:10px;background:#0d1929;
+}
+.reader-explorer-view-switch button{
+  border-radius:7px!important;padding:7px 13px!important;
+  font-size:12px!important;font-weight:650!important;
+  color:#93adc8;white-space:nowrap;line-height:1;
+}
+.reader-explorer-view-switch button.selected,
+.reader-explorer-view-switch button[aria-pressed=true]{
+  background:#315577;color:#f4faff;box-shadow:inset 0 0 0 1px #6381a1;
+}
+.reader-explorer-view-switch button:not(.selected):hover{background:#273e57}
+.reader-explorer-card{cursor:pointer}
+@media(max-width:930px){
+  .reader-explorer-brand small,.reader-explorer-count{display:none}
+  .reader-explorer-view-switch button{padding:7px 9px!important}
+  .reader-explorer-crumbs button{max-width:112px}
+}
+
+/* The dock cards now render indexed LibraryWorkspace author/work covers. */
+.reader-explorer-next{
+  flex:0 0 146px;align-self:center;min-height:110px;
+  border:1px dashed #64809c!important;border-radius:12px!important;
+  background:#1b3148!important;color:#d8edff!important;
+  padding:15px!important;font-size:12px!important;line-height:1.6;
+  white-space:normal;text-align:center!important;
+}
+.reader-explorer-next:hover:not(:disabled){background:#2c4a65!important}
+.reader-explorer-card .reader-explorer-cover img{
+  object-fit:cover!important;object-position:center top;
+}
+.reader-explorer-card.current .reader-explorer-cover{
+  box-shadow:0 0 0 2px #9cdcff,inset 0 0 0 1px #abcdf5;
+}
+.reader-explorer-card small{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Indexed author/all views keep the old cover strip; entering the filesystem
+   subview replaces it with directories/files from the current folder only. */
+.reader-explorer.is-embedded{
+  position:relative;inset:auto;z-index:1;display:flex;
+  flex:1 1 auto;width:100%;height:auto;min-height:0;
+  transform:none!important;opacity:1!important;pointer-events:auto!important;
+  border-radius:0;border:0;box-shadow:none;
+}
+.reader-explorer-folder-toggle{display:flex;align-items:center;justify-content:center;
+  gap:7px;white-space:nowrap;padding:7px 11px!important;flex:none;
+  background:#244160!important;border:1px solid #547a9c!important;
+  border-radius:9px!important;color:#e5f2ff!important;font-size:12px!important;
+}
+.reader-explorer-folder-toggle:hover{background:#375b79!important}
+.reader-explorer-path-part{
+  display:inline-block;max-width:135px;min-width:0;flex:0 1 auto;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  border-radius:5px;padding:4px;color:#bcd1e6;font-size:12px;
+}
+.reader-explorer-path-part:not(:last-child):after{content:'›';padding-left:9px;opacity:.5}
+.reader-explorer-fs-card .reader-explorer-cover{background:#14283a;
+  color:#9fc9e9}
+.reader-explorer-fs-card:hover .reader-explorer-cover{background:#233c56}
+.reader-explorer-fs-card[data-folder-kind="video"] .reader-explorer-cover{
+  color:#9ec5fb;
+}
+@media(max-width:700px){
+  .reader-explorer-folder-toggle{padding:7px!important}
+  .reader-explorer-path-part{max-width:75px}
+}
+
+/* Full-window folder browser is a responsive VIDEO/FILE GRID, not the
+   horizontal hover carousel. Keep a stable 16:9 poster area and 2-line names. */
+.reader-explorer.is-embedded .reader-explorer-strip{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(195px,1fr));
+  grid-auto-rows:max-content;
+  gap:18px;
+  align-content:start;
+  justify-content:stretch;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:20px 24px 30px;
+  cursor:default;
+  overscroll-behavior-y:contain;
+}
+.reader-explorer.is-embedded .reader-explorer-strip:active{cursor:default}
+.reader-explorer.is-embedded .reader-explorer-card{
+  width:100%;
+  min-width:0;
+  flex:none;
+  height:auto;
+  min-height:0;
+  align-self:start;
+  padding:0 0 7px!important;
+  gap:7px;
+  border:1px solid #43526b!important;
+  border-radius:10px!important;
+  background:#172436;
+  overflow:hidden;
+}
+.reader-explorer.is-embedded .reader-explorer-card:hover,
+.reader-explorer.is-embedded .reader-explorer-card:focus-visible{
+  border-color:#6c9bcc!important;
+  background:#1e3047;
+  transform:translateY(-2px);
+}
+.reader-explorer.is-embedded .reader-explorer-card .reader-explorer-cover{
+  width:100%;
+  height:auto;
+  aspect-ratio:16 / 9;
+  min-height:0;
+  flex:none;
+  border:0;
+  border-radius:0;
+  background:#0f1a2a;
+}
+.reader-explorer.is-embedded .reader-explorer-card .reader-explorer-cover img{
+  width:100%;height:100%;object-fit:cover!important;object-position:center;
+}
+.reader-explorer.is-embedded .reader-explorer-card strong{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  white-space:normal!important;
+  overflow:hidden;
+  overflow-wrap:anywhere;
+  font-size:12px;
+  line-height:1.45;
+  height:2.9em;
+  min-height:2.9em;
+  padding:0 10px;
+}
+.reader-explorer.is-embedded .reader-explorer-card small{
+  padding:0 10px;
+  font-size:11px;
+}
+.reader-explorer.is-embedded .reader-explorer-next{
+  width:100%;
+  height:125px;
+  min-height:0;
+  flex:none;
+  justify-self:stretch;
+  align-self:start;
+}
+.reader-explorer.is-embedded .reader-explorer-empty{
+  min-width:0;
+  grid-column:1 / -1;
+  min-height:220px;
+}
+.reader-explorer.is-embedded .reader-explorer-foot{
+  padding:9px 24px;
+}
+@media(max-width:720px){
+  .reader-explorer.is-embedded .reader-explorer-strip{
+    grid-template-columns:repeat(auto-fill,minmax(142px,1fr));
+    gap:11px;padding:12px;
+  }
+  .reader-explorer.is-embedded .reader-explorer-card strong{font-size:11px}
+}
+
+/* Thumbnail errors are actionable instead of rendering a broken <img> glyph. */
+.reader-explorer-preview-error{
+  flex:none;display:flex;justify-content:space-between;align-items:center;
+  gap:12px;padding:7px 15px;border-top:1px solid #8f6752;
+  border-bottom:1px solid #8f6752;background:#4b342b;
+  color:#ffe3cd;font-size:11px;max-height:62px;overflow:hidden;
+}
+.reader-explorer-preview-error span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reader-explorer-preview-error button{
+  flex:none;background:#624936!important;
+  border:1px solid #d09e78!important;border-radius:6px!important;
+  color:#fff1e7!important;padding:4px 9px!important;
+}
+
+/* Compact ReaderDock is only used inside the libmpv hover explorer.
+   Move filters into the existing title/path row and enlarge the cover strip;
+   retain the normal image reader's three-row layout unchanged. */
+.reader-explorer.is-player-compact .reader-explorer-toolbar{
+ flex-wrap:wrap;align-content:center;gap:4px 8px;
+}
+.reader-explorer.is-player-compact .reader-explorer-filters{
+ display:flex;align-items:center;flex-wrap:wrap;
+}
+.reader-explorer.is-player-compact .reader-explorer-strip{min-height:0}
+.reader-explorer.is-player-compact .reader-explorer-card strong{
+ white-space:nowrap;text-overflow:ellipsis;
+}
+
+/* Compact libmpv carousel: folder/video labels live inside the artwork,
+   saving an entire text row and allowing the video surface to stay larger. */
+.reader-explorer.is-player-compact .reader-explorer-card{
+ position:relative;min-height:0;height:100%;gap:0;
+ touch-action:pan-y;user-select:none;-webkit-user-select:none;
+}
+.reader-explorer.is-player-compact .reader-explorer-card .reader-explorer-cover{
+ flex:1 1 auto;min-height:0;height:100%;
+}
+.reader-explorer.is-player-compact .reader-explorer-card .reader-explorer-cover-caption{
+ position:absolute;z-index:2;left:0;right:0;bottom:0;pointer-events:none;
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;
+ gap:2px;padding:30px 10px 9px;
+ background:linear-gradient(to bottom,transparent,rgba(3,10,19,.78) 42%,rgba(2,8,16,.96));
+ color:#f4f9ff;text-shadow:0 1px 3px #000;min-width:0;
+}
+.reader-explorer.is-player-compact .reader-explorer-cover-caption strong{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ white-space:normal;overflow:hidden;overflow-wrap:anywhere;
+ width:100%;font-size:13px;line-height:1.25;font-weight:700;padding:0;
+}
+.reader-explorer.is-player-compact .reader-explorer-cover-caption small{
+ font-size:10px;color:#bddef7;width:100%;padding:0;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.reader-explorer.is-player-compact .reader-explorer-strip{
+ touch-action:pan-y;user-select:none;-webkit-user-select:none;
+}
+.reader-explorer.is-player-compact .reader-explorer-card img{
+ user-select:none;-webkit-user-drag:none;pointer-events:none;
+}
+
+/* Normal image reader: large cover-first carousel, like the media dock.
+   Scope tightly so embedded folder grids and the libmpv compact dock remain
+   unchanged. The title and metadata sit over the cover, never below it. */
+.reader-explorer.is-book-carousel{
+ height:min(460px,72vh);
+}
+.reader-explorer.is-book-carousel .reader-explorer-strip{
+ gap:7px;padding:9px 10px 9px;align-items:stretch;
+}
+.reader-explorer.is-book-carousel .reader-explorer-card{
+ position:relative;box-sizing:border-box;
+ flex:0 0 clamp(168px,14vw,210px);
+ width:clamp(168px,14vw,210px);
+ height:100%;min-height:0;gap:0;
+ background:#132238;border:1px solid #526c86!important;
+ border-radius:11px!important;
+}
+.reader-explorer.is-book-carousel .reader-explorer-card:hover{
+ border-color:#92bce4!important;
+ background:#203b54;
+}
+.reader-explorer.is-book-carousel .reader-explorer-card .reader-explorer-card-open{
+ height:100%;flex:1 1 auto;min-height:0;gap:0;
+}
+.reader-explorer.is-book-carousel .reader-explorer-card .reader-explorer-cover{
+ width:100%;height:100%;min-height:0;flex:1 1 auto;
+ border:0;border-radius:inherit;
+}
+.reader-explorer.is-book-carousel .reader-explorer-cover img{
+ width:100%;height:100%;object-fit:cover!important;
+ object-position:center top;
+}
+.reader-explorer.is-book-carousel .reader-explorer-cover-caption{
+ position:absolute;z-index:2;inset:auto 0 0;
+ display:flex;flex-direction:column;align-items:flex-start;
+ justify-content:flex-end;gap:4px;min-width:0;
+ padding:43px 10px 10px;pointer-events:none;
+ background:linear-gradient(to bottom,transparent,rgba(4,12,22,.80) 48%,rgba(2,8,17,.96));
+ color:#f5faff;text-shadow:0 1px 4px #000;
+}
+.reader-explorer.is-book-carousel .reader-explorer-cover-caption strong{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ width:100%;white-space:normal;overflow:hidden;overflow-wrap:anywhere;
+ padding:0;font-size:13px;line-height:1.34;font-weight:700;
+}
+.reader-explorer.is-book-carousel .reader-explorer-cover-caption small{
+ width:100%;max-width:100%;padding:0;font-size:11px;
+ color:#c9def1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.reader-explorer.is-book-carousel .reader-explorer-card .reader-explorer-current-tag{
+ top:8px;right:8px;bottom:auto;left:auto;z-index:3;
+}
+.reader-explorer.is-book-carousel .reader-explorer-card.current{
+ border-color:#9cdcff!important;
+}
+.reader-explorer.is-book-carousel .reader-explorer-next{
+ flex:0 0 145px;min-height:0;height:100%;padding:12px!important;
+}
+@media(max-width:720px){
+ .reader-explorer.is-book-carousel{height:min(420px,76vh)}
+ .reader-explorer.is-book-carousel .reader-explorer-card{
+  flex-basis:clamp(146px,36vw,180px);
+  width:clamp(146px,36vw,180px);
+ }
+ .reader-explorer.is-book-carousel .reader-explorer-strip{
+  gap:6px;padding:7px 8px;
+ }
+}
+
+/* Folder exploration shares the bookshelf's portrait, cover-first cards. */
+.reader-explorer.is-embedded{background:var(--background);color:var(--text)}
+.reader-explorer.is-embedded .reader-explorer-strip{grid-template-columns:repeat(auto-fill,minmax(174px,1fr));gap:14px;padding:20px}
+.reader-explorer.is-embedded .reader-explorer-card{position:relative;aspect-ratio:.75;padding:0!important;gap:0;background:var(--panel);border:2px solid var(--line)!important;border-radius:12px!important}
+.reader-explorer.is-embedded .reader-explorer-card:hover{background:var(--panel-hover);border-color:var(--accent)!important}
+.reader-explorer.is-embedded .reader-explorer-card .reader-explorer-cover{height:100%;aspect-ratio:auto;flex:1;background:var(--panel);color:var(--muted)}
+.reader-explorer.is-embedded .reader-explorer-card .reader-explorer-cover img{object-position:center top}
+.reader-explorer.is-embedded .reader-explorer-cover-caption{position:absolute;inset:auto 0 0;z-index:2;display:flex;flex-direction:column;gap:4px;padding:42px 12px 13px;pointer-events:none;background:linear-gradient(transparent,rgba(0,0,0,.9));text-shadow:0 2px 7px #000}
+.reader-explorer.is-embedded .reader-explorer-cover-caption strong{height:auto;min-height:0;padding:0;color:#f5faff;font-size:13px;font-weight:700}
+.reader-explorer.is-embedded .reader-explorer-cover-caption small{padding:0;color:#cbd5e1}
+.reader-explorer.is-embedded .reader-explorer-card>.reader-explorer-card-open{position:absolute;inset:0;width:100%;height:100%;display:flex;flex-direction:column;padding:0;border:0;border-radius:inherit;overflow:hidden;text-align:left}
+.reader-explorer .reader-explorer-best{position:absolute;z-index:4;top:9px;right:9px;width:31px;height:31px;display:grid;place-items:center;padding:0;border-radius:9px;color:#cbd5e1;background:rgba(0,0,0,.65);box-shadow:0 2px 10px #0005}
+.reader-explorer .reader-explorer-best[aria-pressed=true]{color:#ffd66e}
+.reader-explorer .reader-explorer-best:hover{background:#333;border-color:#ffd66e}
+.reader-explorer.is-embedded :is(.reader-explorer-controls,.reader-explorer-filters,.reader-explorer-foot){border-color:var(--line)}
+.reader-explorer.is-embedded :is(.reader-explorer-categories,.reader-explorer-search){background:var(--field);border-color:var(--line)}
+.reader-explorer.is-embedded :is(select,input,option){background:var(--field);color:var(--text);border-color:var(--line)}
+.reader-explorer.is-embedded :is(.reader-explorer-brand small,.reader-explorer-count,.reader-explorer-path-part,.reader-explorer-empty,.reader-explorer-foot){color:var(--muted)}
+.reader-explorer.is-embedded .reader-explorer-folder-toggle{background:var(--panel-hover)!important;border-color:var(--line)!important;color:var(--text)!important}
+@media(max-width:700px){.reader-explorer.is-embedded .reader-explorer-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px}}
+
+.reader-explorer-card>.reader-explorer-card-open{flex:1;min-height:0;min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:0;text-align:left}
+.reader-explorer.is-player-compact .reader-explorer-card>.reader-explorer-card-open{height:100%;gap:0}
+
+.reader-explorer.is-embedded button.reader-explorer-best[aria-pressed=true]{color:#ffd66e}
+
+/* With Tauri's WebView2 native drop handler disabled, drag the video button
+   itself; child cover images remain non-draggable to avoid duplicate sources. */
+.reader-explorer.is-player-compact .reader-explorer-card[draggable="true"],
+.reader-explorer.is-player-compact .reader-explorer-card-open[draggable="true"]{
+ cursor:grab;
+ -webkit-user-drag:element;
+}
+.reader-explorer.is-player-compact .reader-explorer-card[draggable="true"]:active,
+.reader-explorer.is-player-compact .reader-explorer-card-open[draggable="true"]:active{
+ cursor:grabbing;
+}

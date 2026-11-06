@@ -1,0 +1,30 @@
+.reader-document{display:flex;flex:1;min-height:0;flex-direction:column;
+  background:#121923;color:#e4ebf5;width:100%}
+.reader-document.theme-paper{background:#f7f6f0;color:#202936}
+.reader-document.theme-sepia{background:#e9ddc4;color:#493623}
+.reader-document-settings{display:flex;align-items:center;justify-content:flex-end;
+  gap:10px;padding:9px 14px;border-bottom:1px solid #687b913e;
+  flex-wrap:wrap;background:#24324829;z-index:1}
+.reader-document-heading{display:flex;align-items:center;gap:6px;margin-right:auto;
+  min-width:180px;overflow:hidden}
+.reader-document-heading strong{font-size:13px;text-overflow:ellipsis;
+  overflow:hidden;white-space:nowrap}
+.reader-document-heading small{color:#899db3;white-space:nowrap}
+.reader-document-settings label{display:flex;align-items:center;gap:6px;
+  font-size:12px;white-space:nowrap}
+.reader-document-settings select{background:#24374c;border:1px solid #526b86;
+  color:#e8f3ff;border-radius:6px;padding:5px}
+.reader-document-size{display:flex;align-items:center;gap:9px;font-size:12px}
+.reader-document-size button{display:flex;align-items:center;background:#315579;
+  color:white;border:0;border-radius:6px;padding:5px;cursor:pointer}
+.reader-document-scroll{min-height:0;flex:1;overflow:auto;overscroll-behavior:contain}
+.reader-document-content{margin:25px auto 60px;padding:16px 42px;white-space:pre-wrap;
+  overflow-wrap:anywhere;tab-size:4;letter-spacing:.008em;user-select:text}
+.reader-document-content.sans{font-family:'Malgun Gothic','Noto Sans CJK KR',sans-serif}
+.reader-document-content.serif{font-family:'Batang','Noto Serif CJK KR',serif}
+.reader-document-content.mono{font-family:Consolas,'D2Coding',monospace}
+.reader-document-chapter-nav{max-width:850px;margin:0 auto 30px;display:flex;
+  justify-content:space-around;gap:20px;align-items:center;padding:20px}
+.reader-document-chapter-nav button{background:#2a638a;border:0;border-radius:7px;
+  color:#fff;padding:10px 25px;cursor:pointer}
+.reader-document-chapter-nav button:disabled{opacity:.35;cursor:default}

@@ -1,0 +1,10 @@
+{
+  "enabledPlugins": [
+    "nvideo.board",
+    "nvideo.settings",
+    "nvideo.library"
+  ],
+  "schemaVersion": 1,
+  "profileId": "library-release",
+  "mode": "release"
+}

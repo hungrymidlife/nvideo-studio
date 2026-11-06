@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "media-preview",
+  "description": "Isolated media preview window; media source is resolved only by Rust candidate ID",
+  "windows": ["media-preview"],
+  "permissions": ["core:default"]
+}

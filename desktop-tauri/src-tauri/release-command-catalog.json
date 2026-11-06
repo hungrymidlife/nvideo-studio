@@ -1,0 +1,354 @@
+[
+  {
+    "command": "account_status",
+    "feature": null
+  },
+  {
+    "command": "account_donate_open",
+    "feature": null
+  },
+  {
+    "command": "account_supporter_status",
+    "feature": null
+  },
+  {
+    "command": "account_sign_out",
+    "feature": null
+  },
+  {
+    "command": "account_google_begin",
+    "feature": null
+  },
+  {
+    "command": "account_google_open",
+    "feature": null
+  },
+  {
+    "command": "account_google_cancel",
+    "feature": null
+  },
+  {
+    "command": "account_board_request",
+    "feature": "plugin-board"
+  },
+  {
+    "command": "external_publisher_preview",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "external_publisher_trust",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "external_publisher_list",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "external_publisher_untrust",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "external_plugin_host_info",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "external_plugin_preview",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "external_plugin_list",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "external_plugin_install",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "external_plugin_remove",
+    "feature": "dev-plugin-manager"
+  },
+  {
+    "command": "library_query",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_browse",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_update",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_root_add",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_root_remove",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_group_add",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_group_remove",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_recycle_selected",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_detail",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_state",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_thumbnail",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_thumbnail_batch",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_tag_filters",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_item_tags",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_cache_info",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_cache_clean",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_manual_action",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_manual_members",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_start",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_cancel",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_status",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_audit_author",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_shadow_author",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_shadow_root",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_shadow_root_cancel",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_live_author",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_scan_live_root",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_author_scan_state",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_supported",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_open",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_open_path",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_adjacent",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_adjacent_video",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_move",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_recycle",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_reveal",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_entries",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_thumbnail",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_folder_page",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_folder_best",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_folder_close",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_folder_thumbnail",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_page",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_progress",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_subtitle_settings",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_subtitle_style",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_subtitle_open",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_font_import",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_available",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_start",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_multiview_start",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_multiview_stop",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_multiview_status",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_stop",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_position",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_drag_window",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_status",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_cursor",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_libmpv_control",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_open_item",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_open_folder",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "runtime_info",
+    "feature": null
+  },
+  {
+    "command": "desktop_ui_diagnostic",
+    "feature": null
+  },
+  {
+    "command": "desktop_window_hide",
+    "feature": null
+  },
+  {
+    "command": "desktop_window_show",
+    "feature": null
+  },
+  {
+    "command": "desktop_window_minimize",
+    "feature": null
+  },
+  {
+    "command": "desktop_window_maximize",
+    "feature": null
+  },
+  {
+    "command": "desktop_window_drag",
+    "feature": null
+  },
+  {
+    "command": "desktop_window_quit",
+    "feature": null
+  },
+  {
+    "command": "desktop_autostart_status",
+    "feature": null
+  },
+  {
+    "command": "desktop_autostart_set",
+    "feature": null
+  }
+]

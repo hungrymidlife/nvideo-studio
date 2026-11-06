@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "profileId": "bookshelf-preview",
+  "mode": "development",
+  "enabledPlugins": [
+    "nvideo.library",
+    "nvideo.settings"
+  ]
+}

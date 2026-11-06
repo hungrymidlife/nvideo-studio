@@ -1,0 +1,45 @@
+.nvideo-account-backdrop{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;background:rgba(0,0,0,.68);backdrop-filter:blur(5px)}
+.nvideo-account-modal{width:min(100%,475px);background:var(--panel);border:1px solid var(--line);box-shadow:0 26px 96px rgba(0,0,0,.38);border-radius:19px;color:var(--text);overflow:hidden}
+.nvideo-account-head{display:flex;align-items:center;gap:13px;padding:25px 25px 19px;border-bottom:1px solid var(--line)}
+.nvideo-account-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:var(--accent);background:var(--accent-bg)}
+.nvideo-account-head h2{margin:0;font-size:19px}.nvideo-account-head p{color:var(--muted);font-size:11px;margin:5px 0 0}
+.nvideo-account-close{margin-left:auto;align-self:flex-start;background:transparent;border:0;color:var(--muted);padding:4px;border-radius:7px}
+.nvideo-account-close:hover{color:var(--text);background:var(--panel-hover)}
+.nvideo-account-body{padding:22px 25px 23px}
+.nvideo-account-tabs{display:grid;grid-template-columns:1fr 1fr;padding:4px;gap:4px;border:1px solid var(--line);border-radius:12px;background:var(--background);margin-bottom:23px}
+.nvideo-account-tabs button{border:0;border-radius:9px;background:transparent;color:var(--muted);font-weight:700;padding:10px}
+.nvideo-account-tabs button.selected{background:var(--accent-bg);color:var(--accent-2)}
+.nvideo-account-body form{display:grid;gap:14px}
+.nvideo-account-body label{display:grid;gap:7px;font-size:12px;color:var(--muted);font-weight:650}
+.nvideo-account-body input{width:100%;min-height:42px;border:1px solid var(--line);border-radius:9px;color:var(--text);background:var(--field);padding:10px 12px}
+.nvideo-account-submit{margin-top:8px;width:100%;justify-content:center;min-height:43px}
+.nvideo-account-hint{margin:20px 0 0;color:var(--subtle);font-size:11px;line-height:1.65}
+.nvideo-account-profile{display:flex;align-items:center;gap:12px;padding:16px;border:1px solid var(--line);border-radius:13px;background:var(--background)}
+.nvideo-account-profile div{min-width:0;flex:1}.nvideo-account-profile strong{display:block;font-size:14px}.nvideo-account-profile span{display:block;font-size:11px;color:var(--muted);margin-top:5px;overflow:hidden;text-overflow:ellipsis}
+.nvideo-account-profile .nvideo-account-plan{display:inline-block;border-radius:6px;background:var(--accent-bg);color:var(--accent);padding:4px 8px;font-weight:800;font-size:10px}
+.nvideo-account-profile .nvideo-account-plan.nvideo-account-plan-supporter{
+ background:linear-gradient(120deg,#3b2f17,#554019);
+ border:1px solid #c8a451;
+ border-radius:999px;
+ color:#f6dfa6;
+ box-shadow:0 0 10px rgba(212,172,79,.15);
+ padding:4px 10px;
+}
+:root[data-theme='light'] .nvideo-account-profile .nvideo-account-plan.nvideo-account-plan-supporter{
+ background:linear-gradient(120deg,#fff8e6,#f6e7bf);
+ border-color:#ad852d;
+ color:#785015;
+ box-shadow:0 2px 8px rgba(151,115,38,.12);
+}
+
+.nvideo-account-notice,.nvideo-account-error{margin:0;padding:0 25px 20px;font-size:12px;line-height:1.6}
+.nvideo-account-notice{color:var(--green)}.nvideo-account-error{color:var(--danger)}
+
+.nvideo-account-or{position:relative;margin:18px 0;display:flex;gap:12px;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
+.nvideo-account-or:before,.nvideo-account-or:after{content:"";height:1px;background:var(--line);flex:1}
+.nvideo-account-google{min-height:45px;width:100%;display:flex;align-items:center;justify-content:center;gap:12px;border:1px solid var(--line);background:var(--field);color:var(--text);border-radius:10px;font-weight:700}
+.nvideo-account-google:hover:not(:disabled){border-color:var(--accent);background:var(--panel-hover)}
+.nvideo-account-google-g{font-family:Arial,sans-serif;font-size:22px;font-weight:800;color:#4285f4}
+
+.nvideo-account-cancel{width:100%;margin-top:12px;padding:10px;border-radius:8px;border:1px solid var(--line,#444);background:transparent;color:var(--text,#eee);cursor:pointer}
+.nvideo-account-cancel:hover{background:var(--panel-hover,#282828)}

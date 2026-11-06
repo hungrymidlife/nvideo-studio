@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "external.hello-world",
+  "version": "1.0.0",
+  "hostApi": "1.0",
+  "delivery": "external-declarative",
+  "permissions": [],
+  "menu": {
+    "title": "외부 플러그인 실험",
+    "caption": "재빌드 없는 JSON 패키지",
+    "heading": "외부 플러그인 설치 성공",
+    "description": "앱을 다시 빌드하지 않고 설치한 선언형 예제입니다."
+  },
+  "view": {
+    "kind": "counter",
+    "body": "이 메뉴는 앱에 미리 포함되지 않았습니다. 파일 선택으로 설치했고, Host가 안전한 UI 컴포넌트로 렌더링합니다.\n아래 버튼을 클릭해 상태 변경을 확인하세요.",
+    "buttonLabel": "외부 플러그인 동작 확인"
+  }
+}

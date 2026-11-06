@@ -1,0 +1,431 @@
+
+.reader-libmpv{
+ display:flex;flex-direction:column;flex:1 1 auto;min-width:0;min-height:0;
+ width:100%;height:100%;overflow:hidden;color:var(--text);
+ background:transparent;font-family:inherit;
+}
+.reader-libmpv *{box-sizing:border-box}
+.reader-libmpv button,.reader-libmpv select,.reader-libmpv input{font:inherit}
+.reader-libmpv button{
+ display:inline-flex;align-items:center;justify-content:center;gap:6px;
+ min-height:31px;padding:5px 9px;white-space:nowrap;
+ color:var(--text);background:transparent;border:1px solid transparent;
+ border-radius:8px;cursor:pointer;transition:background .15s,border-color .15s;
+}
+.reader-libmpv button:hover:not(:disabled),.reader-libmpv button:focus-visible{
+ background:var(--panel-hover);border-color:var(--muted);outline:none;
+}
+.reader-libmpv button:disabled{opacity:.38;cursor:not-allowed}
+.reader-libmpv-reveal{display:none!important}
+.reader-libmpv-topbar{
+ flex:0 0 44px;height:44px;min-height:44px;overflow:hidden;z-index:1;
+ background:linear-gradient(90deg,var(--panel),var(--panel));
+ border-bottom:1px solid var(--panel-hover);
+ transition:height .16s,flex-basis .16s;
+}
+.reader-libmpv-top-inner{
+ display:flex;align-items:center;gap:8px;width:100%;height:100%;
+ padding:4px 12px;transition:opacity .14s;
+}
+.reader-libmpv-brand{
+ display:flex;align-items:center;gap:5px;color:var(--muted);
+ font-size:11px;font-weight:800;letter-spacing:1.1px;white-space:nowrap;
+}
+.reader-libmpv-title{
+ flex:1;min-width:0;color:var(--text);font-size:12px;font-weight:650;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.reader-libmpv-engine{font-size:10px;font-weight:700;letter-spacing:.7px;color:var(--muted);
+ padding:3px 7px;background:var(--panel-hover);border-radius:5px;white-space:nowrap}
+.reader-libmpv-gpu{font-size:10px;color:var(--muted);white-space:nowrap}
+.reader-libmpv-move{cursor:move!important;touch-action:none;user-select:none}
+.reader-libmpv-surface{
+ position:relative;flex:1 1 auto;min-height:110px;background:transparent;
+ overflow:hidden;isolation:isolate;
+}
+.reader-libmpv-placeholder{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ height:100%;gap:12px;color:var(--muted);text-align:center;
+}
+.reader-libmpv-placeholder strong{font-size:19px;color:var(--text)}
+.reader-libmpv-placeholder span{font-size:12px}
+.reader-libmpv-placeholder button{background:var(--panel-hover);border-color:var(--muted);padding:9px 18px}
+.reader-libmpv-bottom{
+ flex:0 0 56px;height:56px;min-height:56px;overflow:hidden;z-index:1;
+ background:var(--panel);border-top:1px solid var(--panel-hover);
+ transition:height .16s,flex-basis .16s;
+}
+.reader-libmpv-bottom-inner{
+ height:100%;width:100%;display:flex;align-items:center;gap:10px;
+ padding:5px 14px;transition:opacity .14s;
+}
+.reader-libmpv-play{
+ width:37px;height:37px;min-height:37px!important;flex:none;
+ background:var(--panel-hover)!important;color:var(--text)!important;border-color:var(--muted)!important;
+}
+.reader-libmpv-time{
+ flex:0 0 43px;font-variant-numeric:tabular-nums;text-align:center;
+ color:var(--muted);font-size:11px;white-space:nowrap;
+}
+.reader-libmpv-timeline{min-width:20px;flex:1 1 auto}
+.reader-libmpv-volume{width:82px;flex:0 0 82px}
+.reader-libmpv-icon{flex:0 0 32px;width:32px;padding:5px!important}
+.reader-libmpv input[type=range]{
+ appearance:none;-webkit-appearance:none;cursor:pointer;background:transparent;height:24px;
+ accent-color:var(--muted);
+}
+.reader-libmpv input[type=range]::-webkit-slider-runnable-track{
+ height:4px;border-radius:99px;background:var(--panel-hover);
+}
+.reader-libmpv input[type=range]::-webkit-slider-thumb{
+ appearance:none;-webkit-appearance:none;width:12px;height:12px;
+ margin-top:-4px;border-radius:50%;background:var(--muted);border:2px solid var(--text);
+ box-shadow:0 0 8px #5ea9e05c;
+}
+.reader-libmpv input[type=range]:disabled{opacity:.35;cursor:default}
+.reader-libmpv-panel{
+ flex:0 0 auto;min-height:0;max-height:min(46vh,380px);
+ display:flex;flex-direction:column;overflow:hidden;z-index:1;
+ border-top:1px solid var(--panel-hover);background:var(--panel);
+}
+.reader-libmpv-panel-head{
+ display:flex;align-items:center;gap:9px;padding:7px 14px;min-height:45px;
+ border-bottom:1px solid var(--panel-hover);
+}
+.reader-libmpv-panel-head>strong{display:flex;align-items:center;gap:7px;
+ font-size:12px;white-space:nowrap}
+.reader-libmpv-panel-head [role=tablist]{
+ margin-left:auto;display:flex;gap:4px;background:var(--panel);
+ border-radius:8px;padding:3px;
+}
+.reader-libmpv-panel-head button[role=tab]{font-size:11px;padding:6px 12px}
+.reader-libmpv-panel-head button.active{background:var(--panel-hover);border-color:var(--muted)}
+.reader-libmpv-panel-body{padding:13px 16px;overflow-y:auto;overscroll-behavior:contain}
+.reader-libmpv-panel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 22px}
+.reader-libmpv-field{display:flex;flex-direction:column;gap:7px;min-width:0;font-size:12px}
+.reader-libmpv-field>span{color:var(--muted);font-size:11px}
+.reader-libmpv-field>strong{color:var(--text)}
+.reader-libmpv-field select,.reader-libmpv-key-grid select{
+ min-height:32px;padding:5px 8px;
+ color:var(--text);background:var(--panel);border:1px solid var(--panel-hover);border-radius:8px;
+}
+.reader-libmpv-field-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}
+.reader-libmpv-field-buttons>button,.reader-libmpv-settings-foot button{
+ background:var(--panel-hover);border-color:var(--panel-hover);color:var(--text);
+}
+.reader-libmpv-help{font-size:11px;color:var(--muted);line-height:1.55}
+.reader-libmpv-dll{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ color:var(--muted)}
+.reader-libmpv-key-settings>p{margin:0 0 12px;font-size:11px;color:var(--muted)}
+.reader-libmpv-key-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 16px}
+.reader-libmpv-key-grid label{
+ display:flex;align-items:center;gap:8px;justify-content:space-between;min-width:0;
+ font-size:12px;color:var(--text);
+}
+.reader-libmpv-key-grid label>span{flex:1;min-width:0}
+.reader-libmpv-key-grid small{display:block;font-size:10px;color:var(--muted);line-height:1.4}
+.reader-libmpv-key-grid select{min-width:84px;max-width:132px;font-size:11px}
+.reader-libmpv-settings-foot{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;margin-top:12px;font-size:11px;color:var(--muted);
+}
+.reader-libmpv-form-error{color:#ffc2b7!important;margin-top:8px!important}
+.reader-libmpv-error{
+ flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:6px 12px;color:#ffdfdc;background:#633542;font-size:11px;
+}
+.reader-libmpv-error span{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis}
+
+
+/* Zero residual chrome: cursor position is sampled from Win32, so there is
+   no need to keep a visible 8px or clickable border around the video. */
+.reader-libmpv.is-top-hidden .reader-libmpv-topbar,
+.reader-libmpv.is-bottom-hidden .reader-libmpv-bottom{
+ display:none!important;
+ flex:0 0 0!important;height:0!important;min-height:0!important;
+ border:0!important;padding:0!important;
+}
+.reader-libmpv-topbar,.reader-libmpv-bottom{
+ transition:none!important;
+}
+.reader-libmpv-reveal{display:none!important}
+.reader-libmpv-surface{min-height:64px;flex:1 1 auto}
+.reader-libmpv-dock{
+ height:0;min-height:0;flex:0 0 0;visibility:hidden;pointer-events:none;
+ overflow:hidden;background:var(--panel);border:0;
+}
+.reader-libmpv-dock.is-expanded{
+ height:238px;flex:0 0 238px;
+ visibility:visible;pointer-events:auto;
+ border-top:1px solid var(--panel-hover);
+}
+.reader-libmpv-dock{
+ display:flex;flex-direction:column;
+}
+.reader-libmpv-dock>.reader-explorer{
+ flex:1 1 auto;min-height:0;height:auto;
+}
+.reader-libmpv-dock-resizer{
+ flex:0 0 12px;min-height:12px;width:100%;display:flex;align-items:center;
+ justify-content:center;background:linear-gradient(90deg,var(--panel),var(--panel-hover),var(--panel));
+ cursor:ns-resize;touch-action:none;user-select:none;outline-offset:-2px;
+ border-bottom:1px solid var(--panel-hover);
+}
+.reader-libmpv-dock-resizer:hover,.reader-libmpv-dock-resizer:focus-visible,
+.reader-libmpv-dock.is-resizing .reader-libmpv-dock-resizer{
+ background:var(--panel-hover);outline-color:var(--text);
+}
+.reader-libmpv-dock-resizer>span{
+ width:64px;height:4px;border-radius:999px;background:var(--muted);
+ pointer-events:none;
+}
+.reader-libmpv-dock.is-resizing{user-select:none;-webkit-user-select:none}
+.reader-libmpv-dock>.reader-explorer{
+ position:relative;inset:auto;width:100%;height:auto;flex:1 1 auto;min-height:0;
+ border-radius:0;border:0;box-shadow:none;transform:none;
+ opacity:1;pointer-events:auto;transition:none;
+ background:linear-gradient(160deg,var(--panel-hover),var(--panel));
+}
+/* Larger artwork and fewer navigation rows, without changing the regular
+   image-reader's ReaderDock layout. */
+.reader-libmpv-dock .reader-explorer-strip{
+ gap:15px;padding:8px 13px 7px;
+ scrollbar-width:none;
+}
+.reader-libmpv-dock .reader-explorer-strip::-webkit-scrollbar{display:none}
+.reader-libmpv-dock .reader-explorer-card{
+ flex:0 0 clamp(165px,15vw,220px);
+ gap:7px;
+}
+.reader-libmpv-dock .reader-explorer-card strong{font-size:12px}
+.reader-libmpv-dock .reader-explorer-card small{font-size:11px}
+.reader-libmpv-dock .reader-explorer-toolbar{
+ min-height:36px;flex-wrap:wrap;gap:4px 8px;
+ padding:5px 11px 4px;
+}
+.reader-libmpv-dock .reader-explorer-grip,
+.reader-libmpv-dock .reader-explorer-brand,
+.reader-libmpv-dock .reader-explorer-count,
+.reader-libmpv-dock .reader-explorer-foot{
+ display:none;
+}
+.reader-libmpv-dock .reader-explorer-crumbs{flex:0 1 200px;min-width:75px}
+.reader-libmpv-dock .reader-explorer-crumbs button{max-width:110px}
+.reader-libmpv-dock .reader-explorer-view-switch{order:1}
+.reader-libmpv-dock .reader-explorer-filters{
+ order:2;flex:1 1 370px;display:flex;align-items:center;
+ justify-content:flex-end;gap:4px 8px;flex-wrap:wrap;
+ border:0;padding:0;min-width:0;
+}
+.reader-libmpv-dock .reader-explorer-filters label{gap:4px;white-space:nowrap}
+.reader-libmpv-dock .reader-explorer-filters input{max-width:128px}
+.reader-libmpv-dock .reader-explorer-filters select{max-width:123px}
+.reader-libmpv-dock .reader-explorer-filters button{white-space:nowrap}
+.reader-libmpv-dock .reader-explorer-controls{
+ min-height:36px;gap:7px;padding:3px 11px 5px;
+}
+.reader-libmpv-dock .reader-explorer-categories{
+ flex:0 1 210px;height:31px;
+}
+.reader-libmpv-dock .reader-explorer-search{height:31px}
+.reader-libmpv-dock .reader-explorer-reset{
+ font-size:11px;padding:5px 8px!important;
+}
+.reader-libmpv-dock .reader-explorer-folder-toggle{
+ font-size:11px!important;padding:6px 9px!important;
+}
+@media(max-width:950px){
+ .reader-libmpv-brand,.reader-libmpv-gpu{display:none}
+ .reader-libmpv-top-inner{gap:3px;padding:4px 7px}
+ .reader-libmpv-bottom-inner{gap:6px;padding:4px 8px}
+ .reader-libmpv-volume{width:52px;flex-basis:52px}
+ .reader-libmpv-panel-grid,.reader-libmpv-key-grid{grid-template-columns:1fr}
+ .reader-libmpv-dock.is-expanded{
+  height:238px;flex-basis:238px;
+ }
+ .reader-libmpv-dock .reader-explorer-crumbs{flex-basis:130px}
+ .reader-libmpv-dock .reader-explorer-filters{justify-content:flex-start}
+ .reader-libmpv-dock .reader-explorer-card{flex-basis:170px}
+}
+
+/* The artwork consumes the entire carousel card. The file/folder name is
+   painted inside it, never in a separate row. */
+.reader-libmpv-dock .reader-explorer-card{
+ gap:0;min-height:0;height:100%;
+}
+.reader-libmpv-dock .reader-explorer-strip{
+ padding:7px 12px 9px;min-height:0;
+}
+.reader-libmpv-dock .reader-explorer-card .reader-explorer-cover{
+ flex:1 1 auto;min-height:0;
+}
+
+/* Compact video carousel: the previous flexible card sizing allowed intrinsic
+   portrait poster width to collapse while leaving a wide flex slot. Give each
+   card a real, identical box; keep every tile tightly next to its neighbor. */
+.reader-libmpv-dock .reader-explorer.is-player-compact .reader-explorer-strip{
+ display:flex;flex-direction:row;flex-wrap:nowrap;
+ justify-content:flex-start!important;align-items:stretch;
+ column-gap:8px!important;row-gap:0!important;
+ padding:7px 10px 9px!important;
+}
+.reader-libmpv-dock .reader-explorer.is-player-compact .reader-explorer-card{
+ box-sizing:border-box;
+ flex:0 0 clamp(220px,16vw,270px)!important;
+ width:clamp(220px,16vw,270px)!important;
+ min-width:clamp(220px,16vw,270px)!important;
+ max-width:clamp(220px,16vw,270px)!important;
+ height:100%;margin:0!important;align-self:stretch;
+}
+.reader-libmpv-dock .reader-explorer.is-player-compact .reader-explorer-cover{
+ box-sizing:border-box;width:100%!important;min-width:0;
+ height:100%;flex:1 1 auto;overflow:hidden;
+}
+.reader-libmpv-dock .reader-explorer.is-player-compact .reader-explorer-cover img{
+ width:100%!important;height:100%!important;object-fit:cover!important;
+}
+.reader-libmpv-dock .reader-explorer.is-player-compact .reader-explorer-card.current
+ .reader-explorer-cover{
+ box-shadow:inset 0 0 0 2px var(--muted),0 0 0 2px var(--muted);
+ border-color:var(--muted);
+}
+.reader-libmpv-dock .reader-explorer.is-player-compact .reader-explorer-card.current
+ .reader-explorer-cover-caption{
+ background:linear-gradient(to bottom,transparent,rgba(7,48,83,.80) 42%,rgba(3,24,48,.98));
+}
+@media(max-width:800px){
+ .reader-libmpv-dock .reader-explorer.is-player-compact .reader-explorer-card{
+  flex-basis:210px!important;width:210px!important;min-width:210px!important;max-width:210px!important;
+ }
+}
+
+/* All chrome alpha-blends above the complete native frame. */
+.reader-libmpv{
+ position:relative;
+ --reader-chrome-opacity:.85;
+}
+.reader-libmpv-surface{
+ position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ min-height:0!important;flex:none!important;
+}
+.reader-libmpv-topbar{
+ position:absolute;top:0;left:0;right:0;z-index:5;
+ flex:none!important;
+}
+.reader-libmpv-panel{
+ position:absolute;top:44px;left:0;right:0;z-index:6;
+ max-height:min(48vh,400px);flex:none!important;
+ box-shadow:0 12px 28px #0007;
+}
+.reader-libmpv-bottom{
+ position:absolute;bottom:0;left:0;right:0;z-index:5;
+ flex:none!important;
+ background:rgb(var(--reader-chrome-rgb) / var(--reader-chrome-opacity));
+}
+.reader-libmpv-dock{
+ position:absolute;left:0;right:0;bottom:56px;z-index:4;
+ flex:none!important;
+ background:transparent;
+}
+.reader-libmpv-dock.is-expanded{
+ flex:none!important;
+}
+.reader-libmpv-dock>.reader-explorer{
+ background:transparent;
+}
+.reader-libmpv-error{
+ position:absolute;left:0;right:0;top:44px;z-index:8;
+}
+.reader-libmpv.is-top-hidden .reader-libmpv-topbar,
+.reader-libmpv.is-bottom-hidden .reader-libmpv-bottom{
+ visibility:hidden;pointer-events:none;
+}
+
+.reader-libmpv{--reader-chrome-rgb:32 32 32;color:var(--text)}
+:root[data-theme=light] .reader-libmpv{--reader-chrome-rgb:255 255 255}
+.reader-libmpv-topbar,.reader-libmpv-panel{background:var(--panel);color:var(--text);border-color:var(--line)}
+.reader-libmpv button,.reader-libmpv select{color:var(--text)}
+.reader-libmpv :is(.reader-libmpv-field>span,.reader-libmpv-help,.reader-libmpv-time){color:var(--muted)}
+.reader-libmpv :is(select,input:not([type=range])){background:var(--field);color:var(--text);border-color:var(--line)}
+.reader-libmpv button:hover:not(:disabled){background:var(--panel-hover);border-color:var(--accent)}
+.reader-libmpv-dock>.reader-explorer{background:rgb(var(--reader-chrome-rgb) / var(--reader-chrome-opacity));color:var(--text);backdrop-filter:none}
+.reader-libmpv-dock .reader-explorer-controls,.reader-libmpv-dock .reader-explorer-toolbar,.reader-libmpv-dock .reader-explorer-filters,.reader-libmpv-dock .reader-explorer-strip,.reader-libmpv-dock .reader-explorer-foot{background:transparent}
+.reader-libmpv-placeholder{background:#000;color:#eee}
+
+.reader-libmpv .reader-libmpv-topbar,
+.reader-libmpv .reader-libmpv-bottom,
+.reader-libmpv .reader-libmpv-panel{background:rgb(var(--reader-chrome-rgb) / var(--reader-chrome-opacity))}
+.reader-libmpv .reader-libmpv-panel-head,.reader-libmpv .reader-libmpv-panel-body{background:transparent}
+.reader-libmpv-font-choice{display:flex;gap:8px;min-width:0}
+.reader-libmpv-font-choice input{flex:1;min-width:0;padding:7px 9px;border-radius:8px;border:1px solid var(--line)}
+.reader-libmpv-ass-override{display:flex;align-items:center;gap:8px;align-self:center}
+.reader-libmpv .reader-libmpv-icon[aria-pressed=true]{color:var(--accent-2);background:var(--accent-bg)}
+.reader-libmpv-feedback{position:absolute;z-index:9;left:50%;top:48%;width:68px;height:68px;
+ display:grid;place-items:center;transform:translate(-50%,-50%);pointer-events:none;
+ color:var(--text);background:rgb(var(--reader-chrome-rgb) / .68);border:1px solid var(--border-soft);
+ border-radius:50%;box-shadow:0 5px 24px #0002;animation:player-feedback .65s ease-out forwards}
+.reader-libmpv-feedback-label{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@keyframes player-feedback{0%{opacity:0;transform:translate(-50%,-50%) scale(.88)}
+ 18%,58%{opacity:.94;transform:translate(-50%,-50%) scale(1)}
+ 100%{opacity:0;transform:translate(-50%,-50%) scale(1.07)}}
+@media(prefers-reduced-motion:reduce){.reader-libmpv-feedback{animation-name:player-feedback-reduced}}
+@keyframes player-feedback-reduced{0%,70%{opacity:1}100%{opacity:0}}
+
+/* Native multi-view: one independent HWND per transparent split cell. */
+.reader-libmpv-grid{
+ position:absolute;inset:0;display:grid;grid-auto-rows:minmax(0,1fr);
+ gap:3px;z-index:1;pointer-events:none;min-height:0;min-width:0;
+}
+.reader-libmpv-grid[data-multiview-count="3"] .reader-libmpv-primary{
+ grid-column:1 / -1;
+}
+.reader-libmpv-cell{
+ position:relative;min-width:0;min-height:0;overflow:hidden;
+ outline:1px solid rgba(190,210,235,.30);outline-offset:-1px;
+ background:transparent;
+}
+.reader-libmpv-primary{pointer-events:none}
+.reader-libmpv-secondary{pointer-events:auto}
+.reader-libmpv-cell-primary-label,.reader-libmpv-cell-time{
+ position:absolute;z-index:2;color:#f6f8ff;background:rgba(8,15,25,.70);
+ font-size:11px;padding:4px 7px;border-radius:5px;
+ pointer-events:none;
+}
+.reader-libmpv-cell-primary-label{top:10px;left:10px}
+.reader-libmpv-cell-time{bottom:12px;right:12px}
+.reader-libmpv-cell-toolbar{
+ position:absolute;top:8px;left:8px;right:8px;z-index:3;
+ display:flex;gap:6px;align-items:center;max-width:100%;
+ border-radius:7px;padding:6px 7px;
+ background:rgba(8,15,25,.78);color:#f6f8ff;
+ pointer-events:auto;
+}
+.reader-libmpv-cell-toolbar strong{
+ min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;
+ white-space:nowrap;font-size:11px;font-weight:600;
+}
+.reader-libmpv-cell-toolbar>span{font-size:10px;white-space:nowrap}
+.reader-libmpv-cell-toolbar button{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:26px;width:26px;padding:4px!important;
+ color:#fff!important;border:1px solid rgba(255,255,255,.18)!important;
+ background:rgba(255,255,255,.10)!important;border-radius:5px;
+}
+.reader-libmpv-cell-toolbar button:hover{background:rgba(255,255,255,.23)!important}
+.reader-libmpv-drop-guide{
+ position:absolute;inset:12px;display:flex;justify-content:center;
+ align-items:center;border:2px dashed #75b6ff;border-radius:12px;
+ background:rgba(20,65,125,.34);font-size:17px;font-weight:700;
+ color:#fff;z-index:7;pointer-events:auto;text-align:center;
+}
+
+/* Developer and release player: opt-in split view with an explicit state. */
+.reader-libmpv .reader-libmpv-multiview-toggle{
+ font-size:11px;font-weight:700;min-height:27px;padding:3px 9px;
+ border:1px solid var(--line);border-radius:6px;flex:none;
+ background:var(--panel-hover);
+}
+.reader-libmpv .reader-libmpv-multiview-toggle[aria-pressed="true"]{
+ color:var(--accent);border-color:var(--accent);
+}

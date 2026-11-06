@@ -1,0 +1,287 @@
+.native-reader{position:fixed;inset:0;z-index:200;background:#080f1b;color:#eaf3ff;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.native-reader-top{display:flex;align-items:center;gap:8px;padding:11px 14px;background:#13233a;border-bottom:1px solid #25394f}
+.native-reader-top strong{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:40px}
+.native-reader-top button,.native-reader-footer button{background:#1a3453;color:#eaf3ff;padding:7px 9px;border:1px solid #34516c;border-radius:8px;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.native-reader-top button[aria-pressed=true]{background:#206493}
+.native-reader-position{white-space:nowrap;font-variant-numeric:tabular-nums;margin-right:7px}
+.native-reader-body{display:flex;align-items:flex-start;justify-content:center;gap:0;flex:1;min-height:0;overflow:auto;padding:12px}
+.native-reader-page{flex:1;min-width:0;display:flex;align-items:flex-start;justify-content:center}
+.native-reader-page img{height:auto;max-width:100%;object-fit:contain}
+.native-reader-body.fit-window{align-items:center}
+.native-reader-body.fit-window .native-reader-page{height:100%;align-items:center}
+.native-reader-body.fit-window .native-reader-page img{max-height:100%;width:auto!important;max-width:100%;object-fit:contain}
+.native-reader-page pre{white-space:pre-wrap;overflow-wrap:anywhere;font:16px/1.8 sans-serif;max-width:850px;width:100%;padding:20px;user-select:text}
+.native-reader-footer{padding:9px 15px;background:#13233a;border-top:1px solid #25394f;display:flex;align-items:center;gap:12px}
+.native-reader-wait{flex:1;display:grid;place-items:center;color:#91afc9}
+.native-reader-error{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#49303b;color:#ffb6b6}
+.native-reader-error button{background:transparent;color:inherit;border:0}
+@media(max-width:1150px){.native-reader-top{flex-wrap:wrap}.native-reader-top strong{flex-basis:50%}.native-reader-top button{padding:5px 7px}}
+
+/* Qt Honey Viewer keyboard parity: chrome, page-picker, fit modes and scroll. */
+.native-reader-top{flex-wrap:wrap;flex-shrink:0}
+.native-reader-top select,.native-reader-top input{
+  background:#192d46;border:1px solid #395675;border-radius:8px;
+  color:#eaf3ff;padding:7px 8px;min-width:0;
+}
+.native-reader-top input[type=number]{width:78px}
+.native-reader-body{min-height:0;overscroll-behavior:contain}
+.native-reader-body.no-margin{padding:0}
+.native-reader-body .native-reader-page img{height:auto;object-fit:contain}
+.native-reader-body.fit-window .native-reader-page img{
+  width:auto;max-width:100%;max-height:100%;object-fit:contain
+}
+.native-reader-body.fit-width .native-reader-page img{height:auto;max-width:none}
+.native-reader-body.fit-actual .native-reader-page img{height:auto;max-width:none;object-fit:initial}
+.native-reader-body.fit-fixed_width .native-reader-page img{height:auto;max-width:none}
+.native-reader-body.fit-cover{align-items:stretch;overflow:auto}
+.native-reader-body.fit-cover .native-reader-page{height:100%;overflow:hidden;align-items:stretch}
+.native-reader-body.fit-cover .native-reader-page img{
+  height:100%;width:100%;object-fit:cover;max-height:none;max-width:none
+}
+.native-reader-body.webtoon{display:block;overflow:auto;padding:0;scroll-behavior:auto}
+.native-reader-body.webtoon .native-reader-page{height:auto;min-height:12px;
+  display:flex;justify-content:center;align-items:flex-start;margin:0;padding:0}
+.native-reader-body.webtoon .native-reader-page img{display:block;
+  width:var(--reader-webtoon-width,100%)!important;max-width:none;height:auto!important;max-height:none;
+  object-fit:contain;transform:none!important}
+.native-reader-footer{flex-shrink:0}
+.native-reader-page-jump{display:flex;align-items:center;gap:6px}
+.native-reader-page-jump input{width:66px;max-width:68px;background:#11243b;
+  color:#f3f9ff;border:1px solid #405c7d;border-radius:6px;padding:5px 6px;text-align:center}
+.native-reader-page-jump span{font-size:12px;color:#9ab1c9;white-space:nowrap}
+.native-reader-notice{display:flex;justify-content:space-between;align-items:center;
+  padding:7px 16px;background:#244763;color:#e5f5ff;font-size:12px;gap:12px}
+.native-reader-notice button{background:transparent;border:0;color:inherit;cursor:pointer}
+/* Shared native-reader context menu for the page canvas and cover strip.
+   Fixed positioning survives the dock's own scrolling/clip boundaries. */
+.native-reader-context-menu{
+  position:fixed;z-index:240;width:min(265px,calc(100vw - 16px));
+  max-height:min(380px,calc(100vh - 20px));overflow:auto;
+  display:flex;flex-direction:column;gap:3px;padding:7px;
+  background:#12243a;border:1px solid #537595;border-radius:11px;
+  color:#eef7ff;box-shadow:0 18px 45px #000b;
+}
+.native-reader-context-heading{
+  padding:7px 9px 9px;font-size:12px;font-weight:700;
+  border-bottom:1px solid #38536f;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.native-reader-context-menu button{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:9px 10px;background:transparent;color:inherit;
+  border:0;border-radius:7px;font:12px/1.3 inherit;
+  text-align:left;cursor:pointer;
+}
+.native-reader-context-menu button:hover:not(:disabled),
+.native-reader-context-menu button:focus-visible{
+  background:#2b5378;outline:none;
+}
+.native-reader-context-menu button:disabled{color:#8296ab;cursor:not-allowed}
+.native-reader-context-menu button.danger{color:#ffbebf}
+.native-reader-context-menu button.danger:hover{background:#663441}
+.native-reader-modal-backdrop{position:absolute;inset:0;z-index:215;display:flex;
+  justify-content:center;align-items:center;background:rgba(2,9,20,.75);padding:20px}
+.native-reader-modal{width:min(650px,100%);max-height:min(780px,90vh);overflow:hidden;
+  display:flex;flex-direction:column;background:#10223a;border:1px solid #406181;
+  border-radius:14px;box-shadow:0 24px 70px #0009;color:#eaf4ff;padding:15px;gap:12px}
+.native-reader-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.native-reader-modal button{background:#183657;color:#eef6ff;border:1px solid #3a5c7e;
+  border-radius:8px;padding:7px 10px;cursor:pointer}
+.native-reader-modal button:disabled{opacity:.4;cursor:not-allowed}
+.native-reader-modal p{font-size:12px;color:#9bb9d4;margin:0}
+.native-reader-page-picker-nav{display:flex;align-items:center;justify-content:space-between;
+  gap:8px;font-size:12px;color:#b9cde4}
+.native-reader-page-picker-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(114px,1fr));
+  gap:6px;overflow:auto;min-height:0;padding:4px}
+.native-reader-page-picker-list button.active{background:#256b9e;border-color:#9ad6ff}
+.native-reader-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;
+  overflow:auto;min-height:0;font-size:12px}
+.native-reader-shortcuts>div{display:flex;align-items:center;gap:10px;justify-content:space-between;
+  border-bottom:1px solid #29415d;padding:5px 0}
+.native-reader-shortcuts kbd{font:11px/1.5 monospace;color:#fff;background:#183657;
+  border:1px solid #395978;padding:5px;border-radius:5px}
+.native-reader-shortcuts span{text-align:right;color:#bad0e5}
+@media(max-width:650px){.native-reader-shortcuts{grid-template-columns:1fr}
+  .native-reader-footer{flex-wrap:wrap;gap:7px}
+  .native-reader-top{gap:5px}
+}
+
+/* Reader chrome overlays the image without consuming vertical space.
+   The root's edge-hover handler independently reveals the top/bottom bar.
+   Tab can pin both; unlike a collapsed layout, showing controls never
+   changes the image viewport or the auto-two-page decision. */
+.native-reader{position:fixed;isolation:isolate}
+.native-reader-top,.native-reader-footer{
+  position:absolute;left:0;right:0;z-index:205;
+  margin:0;max-height:45vh;overflow-y:auto;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity 140ms ease,transform 140ms ease,visibility 140ms ease;
+  box-shadow:0 5px 24px rgba(0,0,0,.52);
+}
+.native-reader-top{top:0;transform:translateY(-100%)}
+.native-reader-footer{bottom:0;transform:translateY(100%);
+  box-shadow:0 -5px 24px rgba(0,0,0,.52)}
+.native-reader-top.is-visible,.native-reader-footer.is-visible{
+  opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0);
+}
+.native-reader-body{
+  width:100%;height:100%;flex:1 1 auto;min-height:0;min-width:0;
+  overflow:auto;display:flex;justify-content:flex-start;align-items:flex-start;
+  box-sizing:border-box;
+}
+.native-reader-spread{
+  display:flex;flex:none;align-items:center;justify-content:flex-start;
+  gap:0!important;column-gap:0!important;margin:auto;
+  min-width:0;max-width:none;max-height:none;
+}
+.native-reader-body:not(.webtoon) .native-reader-spread .native-reader-page{
+  display:flex;flex:none;min-width:0;max-width:none;
+  align-items:center;justify-content:center;overflow:hidden;
+  margin:0;padding:0;border:0;
+}
+.native-reader-body:not(.webtoon) .native-reader-spread .native-reader-page img{
+  display:block;width:100%!important;height:100%!important;
+  max-width:none!important;max-height:none!important;
+  object-fit:contain;transform:none!important;flex:none;
+}
+.native-reader-body.no-margin .native-reader-spread{gap:0}
+.native-reader-body.webtoon{height:100%;display:block}
+.native-reader-body.webtoon .native-reader-page.pending{
+  min-height:240px;display:flex;align-items:center;justify-content:center;
+}
+.native-reader-page-failure{text-align:center;display:flex;align-items:center;flex-direction:column;gap:8px;max-width:90%;color:#ffb6b6;font-size:12px}
+.native-reader-page-failure button{border:1px solid #597a98;border-radius:6px;background:#214769;color:#eaf4ff;padding:7px 13px;cursor:pointer}
+
+/* One scrollbar represents every page; only the nearby rows are in the DOM. */
+.native-reader-qt-picker{width:min(840px,96vw);height:min(720px,90vh);max-height:90vh}
+.native-reader-qt-picker .native-reader-modal-head>span{
+  flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#9db5cd;font-size:12px;text-align:right;
+}
+.native-reader-picker-controls{display:flex;align-items:center;flex-wrap:wrap;gap:7px;font-size:12px;color:#a9c7e5}
+.native-reader-picker-controls>span{white-space:nowrap;margin-right:auto}
+.native-reader-picker-controls button{padding:5px 8px}
+.native-reader-picker-seek{display:flex;align-items:center;gap:5px}
+.native-reader-picker-seek input{width:94px;max-width:28vw;padding:5px 6px;
+  color:#eaf4ff;background:#0d1b2d;border:1px solid #465e7b;border-radius:6px}
+.native-reader-virtual-list{
+  display:block;position:relative;flex:1 1 auto;min-height:180px;min-width:0;width:100%;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  background:#0d1b2d;border:1px solid #465e7b;border-radius:7px;
+  color:#dceafb;outline:none
+}
+.native-reader-virtual-list:focus-visible{border-color:#77beed;box-shadow:0 0 0 1px #77beed}
+.native-reader-virtual-content{position:relative;width:100%;min-width:0}
+.native-reader-virtual-row{
+  position:absolute;left:0;right:0;box-sizing:border-box;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  padding:7px 13px;color:#dceafb;
+  font:13px/18px Consolas,'Malgun Gothic',monospace;
+  cursor:pointer;user-select:none
+}
+.native-reader-virtual-row.active{background:#28608e;color:#fff}
+.native-reader-virtual-row:hover:not(.active){background:#19344d}
+.native-reader-virtual-row.error{color:#ffb6b6}
+.native-reader-picker-actions{display:flex;align-items:center;justify-content:flex-end;
+  gap:8px;padding-top:4px;border-top:1px solid #354960}
+.native-reader-picker-actions>span{flex:1;color:#93b0cd;font-size:12px}
+.native-reader-body{touch-action:pan-y;cursor:grab}
+.native-reader-body:active{cursor:grabbing}
+.native-reader-body .native-reader-page img{user-select:none;-webkit-user-drag:none}
+
+/* PDF is streamed by our session-scoped Tauri protocol, not a file:// URL. */
+.reader-pdf-container{
+  display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden;
+  background:#111c29;
+}
+.reader-pdf-iframe{
+  display:block;width:100%;flex:1;min-height:0;border:0;background:#fff;
+}
+.reader-pdf-container>p{
+  flex:none;padding:5px 15px;margin:0;color:#a0b8cd;font-size:11px;
+  background:#17273b;text-align:center;
+}
+
+/* Persisted W-toggle view presets, edited without mutating the live view. */
+.native-reader-settings{width:min(560px,95vw);max-height:min(760px,92vh);
+  overflow-y:auto}
+.native-reader-settings .native-reader-modal-head strong{display:flex;align-items:center;gap:8px}
+.native-reader-settings-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.native-reader-settings-tabs button{padding:10px 6px;min-width:0;white-space:normal}
+.native-reader-settings-tabs button.active,
+.native-reader-settings-tabs button[aria-selected="true"]{
+  background:#206493;border-color:#6dcaff;color:#fff}
+.native-reader-settings-fields{display:grid;grid-template-columns:1fr;gap:10px}
+.native-reader-settings-fields>label{display:grid;grid-template-columns:minmax(110px,1fr) minmax(160px,1.4fr);
+  align-items:center;gap:12px;color:#d5e6f8;font-size:13px}
+.native-reader-settings-fields select,.native-reader-settings-fields input:not([type="checkbox"]){
+  background:#192d46;border:1px solid #395675;border-radius:7px;
+  color:#eaf3ff;padding:9px 10px;min-width:0;width:100%;box-sizing:border-box}
+.native-reader-settings-fields input:disabled{opacity:.65}
+.native-reader-settings-fields .native-reader-settings-check input{
+  justify-self:end;accent-color:#3fb7f2;width:18px;height:18px}
+.native-reader-settings-summary{display:flex;flex-wrap:wrap;gap:8px 14px;
+  border-top:1px solid #34516c;border-bottom:1px solid #34516c;
+  padding:10px 0;font-size:12px;color:#a9d2ef}
+.native-reader-settings .native-reader-picker-actions{flex-wrap:wrap}
+.native-reader-settings .native-reader-picker-actions .primary{background:#216995;border-color:#55b4f1}
+@media(max-width:520px){
+  .native-reader-settings-fields>label{grid-template-columns:1fr}
+}
+
+/* Keep notices dismissible independently of edge-hover toolbars.
+ * Bottom-right toast floats above the toolbar/dock but beneath dialogs. */
+.native-reader .native-reader-notice{
+  position:absolute;
+  z-index:212;
+  bottom:72px;
+  right:16px;
+  left:auto;
+  width:max-content;
+  max-width:min(620px,calc(100% - 32px));
+  box-sizing:border-box;
+  padding:10px 12px;
+  border:1px solid #4b87b4;
+  border-radius:10px;
+  box-shadow:0 8px 28px rgba(0,0,0,.48);
+  overflow-wrap:anywhere;
+  pointer-events:auto;
+}
+.native-reader .native-reader-notice button{
+  flex:none;
+  min-width:28px;
+  min-height:28px;
+  margin-left:12px;
+  border-radius:6px;
+  border:1px solid #75abce;
+  font-size:19px;
+  line-height:1;
+}
+.native-reader .native-reader-notice button:hover{
+  background:#3e759e;
+}
+
+/* libmpv supplies its own always-accessible compact top/bottom chrome.
+   The old bookshelf hover toolbars otherwise cover the native player. */
+.native-reader.reader-embedded-libmpv>.native-reader-top,
+.native-reader.reader-embedded-libmpv>.native-reader-footer{
+ display:none!important;
+ pointer-events:none;
+}
+
+/* libmpv playback is a fixed GPU surface: never let the legacy image-reader
+   scroller introduce 12px padding or a right-hand page scrollbar. */
+.native-reader.reader-embedded-libmpv .native-reader-body{
+ padding:0!important;overflow:hidden!important;align-items:stretch;
+ justify-content:stretch;min-width:0;min-height:0;scrollbar-width:none;
+}
+.native-reader.reader-embedded-libmpv .native-reader-body::-webkit-scrollbar{display:none}
+.native-reader.reader-embedded-libmpv .reader-media{
+ min-width:0;min-height:0;height:100%;overflow:hidden!important;
+}
+
+.native-reader.reader-directory{background:var(--background);color:var(--text)}
+.reader-directory .native-reader-top{background:var(--panel);border-color:var(--line)}
+.reader-directory .native-reader-top button{background:var(--panel-hover);border-color:var(--line);color:var(--text)}
+
+.desktop-app-frame .native-reader.reader-directory{top:38px}

@@ -1,0 +1,22 @@
+.nvideo-confirm-overlay{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;
+  justify-content:center;padding:20px;background:rgba(3,9,20,.79);backdrop-filter:blur(6px)}
+.nvideo-confirm-box{width:min(560px,95vw);max-height:88vh;overflow:auto;display:flex;
+  flex-direction:column;gap:15px;padding:22px;border-radius:16px;
+  border:1px solid #3d5876;background:#12243b;color:#f0f6ff;box-shadow:0 22px 65px #000a}
+.nvideo-confirm-box header{display:flex;align-items:center;gap:9px}
+.nvideo-confirm-box header h2{flex:1;font-size:18px;line-height:1.4;margin:0}
+.nvideo-confirm-box header .nvideo-confirm-close{border:0;background:transparent;
+  padding:5px;color:#b9cce2}
+.nvideo-confirm-box>p{margin:0;line-height:1.6;font-size:13px;white-space:pre-wrap;color:#c7d8ec}
+.nvideo-confirm-targets{max-height:170px;overflow:auto;border:1px solid #3a526a;
+  border-radius:9px;background:#0c1c2e;padding:9px 12px;font-size:12px}
+.nvideo-confirm-targets div{padding:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nvideo-confirm-targets small{color:#8eaac6}
+.nvideo-confirm-box footer{display:flex;gap:10px;justify-content:flex-end}
+.nvideo-confirm-box footer button{padding:10px 17px;border-radius:9px;font-weight:700;
+  border:1px solid #466481;color:#fff;cursor:pointer}
+.nvideo-confirm-cancel{background:#203851}
+.nvideo-confirm-execute{background:#1d749f}
+.nvideo-confirm-execute.danger{background:#972e41;border-color:#df6d7c}
+.nvideo-confirm-box button:disabled{opacity:.38;cursor:not-allowed}
+.nvideo-confirm-error{color:#ffb4c1!important;font-weight:600}

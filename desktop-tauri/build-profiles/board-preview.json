@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "profileId": "board-preview",
+  "mode": "development",
+  "enabledPlugins": [
+    "nvideo.board",
+    "nvideo.settings"
+  ]
+}

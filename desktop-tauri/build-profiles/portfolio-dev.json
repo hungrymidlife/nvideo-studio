@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "profileId": "portfolio-dev",
+  "mode": "development",
+  "enabledPlugins": [
+    "nvideo.library",
+    "nvideo.board",
+    "nvideo.settings"
+  ]
+}

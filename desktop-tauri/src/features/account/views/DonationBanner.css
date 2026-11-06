@@ -1,0 +1,5 @@
+.nvideo-donation{display:flex;align-items:center;gap:18px;padding:20px 24px;margin-bottom:24px;border:1px solid var(--border);border-radius:18px;background:var(--panel);color:var(--text)}
+.nvideo-donation-symbol{display:grid;place-items:center;flex-shrink:0;width:54px;height:54px;border-radius:16px;background:color-mix(in srgb,currentColor 6%,transparent);color:#df647c}
+.nvideo-donation-copy{flex:1;min-width:0}.nvideo-donation-copy strong{font-size:15px}.nvideo-donation-copy p{margin:7px 0;font-size:13px;line-height:1.6;color:var(--muted)}.nvideo-donation-copy small{font-size:12px;color:var(--muted)}
+.nvideo-donation-actions{display:flex;gap:8px;flex-wrap:wrap}.nvideo-donation-actions button{white-space:nowrap}
+@media(max-width:1000px){.nvideo-donation{flex-wrap:wrap}.nvideo-donation-actions{margin-left:72px}}
