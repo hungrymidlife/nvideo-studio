@@ -93,3 +93,6 @@ _project_source_exports/
 
 release-artifacts/
 portable-dist/
+
+#neon env
+neon_conf.txt
