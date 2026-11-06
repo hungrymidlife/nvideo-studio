@@ -3,12 +3,21 @@ import {spawnSync} from 'node:child_process';
 import {existsSync,readFileSync,writeFileSync,mkdirSync,cpSync,copyFileSync,rmSync,realpathSync} from 'node:fs';
 import {join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {authCspOverride} from './service-csp.mjs';
 import {releasePlan,profileIds,safeFiles,assertSmoke,toolPolicy,hash,releaseEnvironment,assertPlainFile,requiredTools} from './release-plan.mjs';
 const root=realpathSync(fileURLToPath(new URL('../',import.meta.url)));
 const args=process.argv.slice(2), command=args.shift();
 const strict=args.includes('--strict-clean'); const ids=profileIds(args.filter(x=>x!=='--strict-clean'));
 if(!['check','build','matrix'].includes(command)||((command==='check'||command==='build')&&ids.length!==1))throw Error('Usage: release-build.mjs check|build <id> [--strict-clean], or matrix <id> <id> ... [--strict-clean]');
-const plans=ids.map(id=>releasePlan(root,id));
+// Keep the checked-in public CSP generic; bind the configured Auth host into
+// both frontend and native Tauri security config for this one build.
+const publicConfig=JSON.parse(readFileSync(join(root,'src-tauri','tauri.conf.json'),'utf8'));
+const serviceCsp=authCspOverride(publicConfig,process.env.NVIDEO_AUTH_URL);
+const plans=ids.map(id=>{
+ const plan=releasePlan(root,id);
+ plan.tauriConfig.app=serviceCsp.app;
+ return plan;
+});
 function run(bin,argv,env={},capture=false,timeout=7200000){
  const result=spawnSync(bin,argv,{cwd:root,env:{...releaseEnvironment(process.env),...env},stdio:capture?'pipe':'inherit',encoding:'utf8',timeout,windowsHide:true});
  if(result.error||result.status!==0)throw Error(`${bin} failed: ${result.error?.message||result.stderr||result.status}`);

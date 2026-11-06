@@ -2,9 +2,14 @@
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
+import {readFileSync} from 'node:fs';
+import {authCspOverride} from './service-csp.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const env={...process.env,NVIDEO_PLUGIN_BUILD_PROFILE:'portfolio-dev'};
 for(const key of ['NVIDEO_BUNDLE_EXCLUDE','NVIDEO_BUNDLE_EXAMPLE','NVIDEO_BUNDLE_OUT_DIR','TAURI_CONFIG'])delete env[key];
+// Tauri dev must allow the same Neon Auth origin that Vite and Rust receive.
+const publicConfig=JSON.parse(readFileSync(join(root,'src-tauri','tauri.conf.json'),'utf8'));
+env.TAURI_CONFIG=JSON.stringify(authCspOverride(publicConfig,env.NVIDEO_AUTH_URL));
 const executable=join(root,'node_modules','@tauri-apps','cli','tauri.js');
 // Native commands for removed features must not be present even in DEV.
 const nativeFeatures='dev-selective,plugin-library,plugin-board,dev-plugin-manager';

@@ -17,7 +17,7 @@ npm ci
 npm run portfolio:dev
 ```
 
-프런트엔드와 Rust에서 동일한 Auth URL을 사용한다. 지정한 auth origin을 `src-tauri/tauri.conf.json`의 connect-src/frame-src에, 첨부 저장소 origin을 img-src에 추가한다. HTTPS와 호스트 검증을 우회하지 않는다. DATABASE_URL·Ko-fi 검증 토큰·S3 비밀값은 데스크톱 환경 변수에 넣지 않고 Functions 서버에만 설정한다.
+프런트엔드와 Rust에서 동일한 Auth URL을 사용한다. `portfolio:dev`와 `release:build`는 `NVIDEO_AUTH_URL`의 HTTPS origin을 Tauri WebView2 CSP의 `connect-src` 및 `frame-src`에 **빌드 시 자동으로 허용**한다. 공개 저장소의 `tauri.conf.json`을 자신의 URL로 직접 수정하거나 운영 주소를 커밋할 필요가 없다. 첨부 이미지 저장소의 origin은 별도로 `img-src`에 허용해야 한다. HTTPS와 호스트 검증을 우회하지 않는다. DATABASE_URL·Ko-fi 검증 토큰·S3 비밀값은 데스크톱 환경 변수에 넣지 않고 Functions 서버에만 설정한다.
 
 ## 바이너리 공개 보류
 
