@@ -15,10 +15,10 @@ export function authCspOverride(config,authURL){
  const origin=url.origin;
  const policies=baseline.split(';').map(value=>value.trim()).filter(Boolean);
  for(const directive of ['connect-src','frame-src']){
-  const index=policies.findIndex(policy=>policy.split(/\\s+/)[0]===directive);
+  const index=policies.findIndex(policy=>policy.split(/\s+/)[0]===directive);
   if(index<0)throw new Error('Missing required Tauri CSP directive: '+directive);
   // Replace only the checked-in placeholder; keep every other CSP directive intact.
-  const tokens=policies[index].split(/\\s+/).filter(token=>token!==PLACEHOLDER_ORIGIN);
+  const tokens=policies[index].split(/\s+/).filter(token=>token!==PLACEHOLDER_ORIGIN);
   if(!tokens.includes(origin))tokens.push(origin);
   policies[index]=tokens.join(' ');
  }
