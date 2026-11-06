@@ -33,7 +33,7 @@ Windows에서 로컬 책과 영상을 관리하고, 이미지·웹툰·문서 Re
 
 설계 패턴의 적용 범위와 한계는 [설계 결정 문서](docs/architecture/03-patterns-and-decisions.md)에 정리했습니다.
 
-온라인 계정·게시판은 기본적으로 구성되지 않습니다. [공개 소스 설정과 배포 보류 안내](docs/engineering/10-public-release.md)를 먼저 확인하세요.
+온라인 계정·게시판은 기본적으로 구성되지 않습니다. [공개 소스 설정과 배포 보류 안내](docs/engineering/10-public-release.md)를 먼저 확인하세요. Google 로그인은 빌드 전에 자신의 `NVIDEO_AUTH_URL`을 설정해야 합니다. 개발 및 릴리스 빌드가 그 HTTPS origin을 WebView2 CSP에 자동 반영하므로 `tauri.conf.json`에 개인 주소를 커밋하지 않습니다.
 
 ## 실행과 빌드
 
