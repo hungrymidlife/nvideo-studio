@@ -764,6 +764,88 @@ pub(crate) fn recycle_source(id:i64)->Result<Value,String>{
 }
 
 
+/// Batch recycle is explicit and path-bound: queued item IDs can be stale after a
+/// bookshelf rescan, so never recycle by ID without checking the saved path.
+#[derive(serde::Deserialize)]
+pub(crate) struct RecycleCandidate {
+    pub id: i64,
+    pub path: String,
+}
+
+pub(crate) fn recycle_queue(items: Vec<RecycleCandidate>) -> Result<Value, String> {
+    if items.is_empty() || items.len() > 100 {
+        return Err("휴지통 일괄 처리 대상은 1~100개여야 합니다.".into());
+    }
+    let mut seen = std::collections::HashSet::<PathBuf>::new();
+    let mut results = Vec::with_capacity(items.len());
+    for item in items {
+        let saved_path = item.path;
+        let result = (|| -> Result<Option<String>, String> {
+            let source = PathBuf::from(&saved_path);
+            if !source.is_absolute() {
+                return Err("절대 경로의 작품만 삭제할 수 있습니다.".into());
+            }
+            let meta = fs::symlink_metadata(&source)
+                .map_err(|e| format!("파일을 찾을 수 없습니다: {e}"))?;
+            if meta.file_type().is_symlink() {
+                return Err("심볼릭 링크는 삭제할 수 없습니다.".into());
+            }
+            let canonical = fs::canonicalize(&source)
+                .map_err(|e| format!("삭제 대상 경로 확인 실패: {e}"))?;
+            if !canonical.is_file() && !canonical.is_dir() {
+                return Err("일반 파일 또는 작품 폴더만 처리할 수 있습니다.".into());
+            }
+            if seen.iter().any(|prior| canonical.starts_with(prior) || prior.starts_with(&canonical)) {
+                return Err("중복되거나 포함 관계인 작품은 동시에 삭제할 수 없습니다.".into());
+            }
+            // Also protects catalog root and author folders. A busy/malformed
+            // catalog must fail closed, not silently authorize arbitrary removal.
+            crate::library_native::reader_move_preflight_external(&canonical)?;
+            if item.id > 0 {
+                crate::library_native::reader_move_preflight(item.id, &canonical)?;
+            }
+            // Resolve catalog ownership for external files without trusting a
+            // client-supplied ID or deleting an unrelated reindexed work.
+            let context = crate::library_native::reader_context(&canonical).ok();
+            let indexed = context.as_ref().and_then(|v|v["indexedItemId"].as_i64())
+                .filter(|id|*id>0);
+            if item.id > 0 && indexed != Some(item.id) {
+                return Err("책장 색인 ID가 변경됐습니다. 목록에서 제거하고 다시 추가하세요.".into());
+            }
+            let author = context.as_ref().and_then(|v|v["authorId"].as_i64());
+            drop_zip_cache_for(&canonical);
+            if let Some(id) = indexed {
+                let outcome=crate::library_native::recycle_selected("item".into(),vec![id])?;
+                if outcome["deleted"].as_u64()!=Some(1){
+                    return Err(outcome["failed"].as_array().and_then(|a|a.first())
+                        .and_then(Value::as_str).unwrap_or("휴지통 이동 실패").into())
+                }
+            } else {
+                trash::delete(&canonical).map_err(|e|format!("휴지통 이동 실패: {e}"))?;
+            }
+            seen.insert(canonical.clone());
+            if let Ok(mut guard)=books().lock(){
+                guard.retain(|_,book| book.source_path!=canonical);
+            }
+            let warning = if indexed.is_none() {
+                author.and_then(|id|{
+                    let cancel=std::sync::atomic::AtomicBool::new(false);
+                    crate::library_scan_live_native::run_full_author(id,&cancel).err()
+                })
+            } else {None};
+            Ok(warning)
+        })();
+        match result {
+            Ok(warning) => results.push(json!({"path":saved_path,"deleted":true,
+                "catalogWarning":warning})),
+            Err(error) => results.push(json!({"path":saved_path,"deleted":false,
+                "error":error})),
+        }
+    }
+    Ok(json!({"results":results}))
+}
+
+
 /// Describe page number and source filename without decompressing images.
 /// The web viewer dock uses this to search and navigate large ZIP collections.
 pub(crate) fn entries(id:i64,offset:usize,limit:usize)->Result<Value,String>{
@@ -884,6 +966,22 @@ pub(crate) fn progress(id:i64,session:i64,page:usize,total:usize,close:bool)->Re
 #[cfg(test)]
 mod tests{
     use super::*;
+    #[test]
+    fn batch_recycle_rejects_unconfirmed_empty_and_oversized_requests(){
+        assert!(recycle_queue(vec![]).is_err());
+        let items=(0..101).map(|n|RecycleCandidate{id:n,
+            path:format!("C:\\\\media\\\\test-{n}.jpg")}).collect();
+        assert!(recycle_queue(items).is_err());
+    }
+    #[test]
+    fn batch_recycle_missing_file_returns_failure_without_deleting_anything(){
+        let missing=std::env::temp_dir().join(format!(
+            "nvideo-batch-delete-missing-{}",uuid::Uuid::new_v4()));
+        let result=recycle_queue(vec![RecycleCandidate{id:-1,
+            path:missing.to_string_lossy().to_string()}]).unwrap();
+        assert_eq!(result["results"][0]["deleted"],false);
+        assert!(result["results"][0]["error"].as_str().is_some());
+    }
     #[test] fn zip_index_is_reused_for_on_demand_pages(){
         use std::io::Write as _;
         let path=std::env::temp_dir().join(format!("nvideo-zip-index-{}-{}.zip",
