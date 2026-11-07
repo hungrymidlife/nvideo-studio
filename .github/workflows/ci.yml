@@ -48,6 +48,8 @@ jobs:
           workspaces: desktop-tauri/src-tauri -> target
       - name: Rust check
         run: cargo check --manifest-path desktop-tauri/src-tauri/Cargo.toml
+      - name: Reader batch recycle guard unit tests
+        run: cargo test --manifest-path desktop-tauri/src-tauri/Cargo.toml --lib batch_recycle
       - name: Windows PowerShell viewer registry syntax check
         run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File desktop-tauri/scripts/windows-integration/Verify-Viewer.ps1
 
