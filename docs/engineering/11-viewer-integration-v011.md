@@ -49,6 +49,39 @@ are revalidated before opening, and do not require an HTTP listener.
 - Settings are persisted locally. Native libmpv keyboard focus uses input
   forwarding without global hooks.
 
+## Board, Auth and supporter endpoints in a local release build
+
+Unlike the private developer tree, the public source intentionally contains
+offline example endpoints. Environment files in `desktop-tauri/` are local
+and gitignored; switching branches does **not** restore production endpoints
+or populate environment variables.
+
+The release builder **does not automatically load** `.env` or `.env.example`
+into Rust's `option_env!` inputs. Supply the three **public HTTPS endpoint
+URLs** in the same PowerShell process that runs the release build:
+
+```powershell
+$env:NVIDEO_AUTH_URL = 'https://YOUR_AUTH_HOST/neondb/auth'
+$env:NVIDEO_SUPPORTER_API_URL = 'https://YOUR_SUPPORTER_HOST/supporter'
+$env:NVIDEO_BOARD_API_BASE_URL = 'https://YOUR_BOARD_HOST'
+npm run release:build -- custom-release
+```
+
+The board URL is the API base host, **not** `/posts`. These values must refer
+to the same production identity environment as the board API; staging JWTs
+cannot authorize production writes. Auth URL is additionally required for the
+Tauri WebView2 CSP, and the same value is compiled into Rust and the frontend.
+
+Release builds that include `nvideo.board` now reject missing, placeholder,
+non-HTTPS or malformed endpoint settings **before** compiling the executable.
+The fail-fast check only names the invalid variables; it never prints URLs,
+tokens or other environment values.
+
+Do not put `DATABASE_URL`, `KOFI_VERIFICATION_TOKEN`, API tokens or S3
+credentials into desktop release build inputs. Such secrets belong to their
+server-side services only. Do not check any real endpoint configuration or
+`.env` file into the public repository.
+
 ## Required validation before merging
 
 ```powershell
