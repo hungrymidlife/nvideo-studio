@@ -46,7 +46,7 @@ test('native candidate lookup never opens the next work or touches deleted file 
 test('both cover thumbnails and the canvas open a bounded right-click menu',()=>{
  assert.match(dock,/onContextMenu=\{event=>showContextFor\(event,\{/);
  assert.match(dock,/onContextTarget\(target,\{x:event\.clientX,y:event\.clientY\}\)/);
- assert.match(dock,/if\(compact\|\|!onContextTarget\)return/);
+ assert.match(dock,/if\(!onContextTarget\)return/);
  assert.match(view,/onContextTarget=\{openContextMenu\}/);
  assert.match(view,/onContextMenu=\{event=>\{/);
  assert.match(view,/className="native-reader-context-menu" role="menu"/);
