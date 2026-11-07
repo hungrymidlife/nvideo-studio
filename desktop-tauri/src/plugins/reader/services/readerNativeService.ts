@@ -8,13 +8,15 @@ export type ReaderBook={itemId:number;title:string;kind:string;total:number;sess
 export type ReaderPage={index:number;kind:'image'|'text'|'media';src?:string;text?:string;chapter?:string};
 export type ReaderMoveResult={moved:boolean;to:string;catalogUpdated:boolean;catalogWarning?:string;synced?:boolean};
 export type ReaderRecycleResult={deleted:boolean;recycled:boolean};
+export type ReaderQueuedRecycle={id:number;path:string};
+export type ReaderBatchRecycleResult={results:{path:string;deleted:boolean;error?:string;catalogWarning?:string|null}[]};
 export type ReaderAdjacentTarget={id:number;path?:string};
 export type ReaderAuthorDetail={name?:string;path?:string};
 export type ReaderPageEntry={index:number;name:string};
 export type LibmpvAvailability={available:boolean;dll?:string|null;experimental:boolean};
 export type LibmpvRect={x:number;y:number;w:number;h:number};
 export type LibmpvCursor={inside:boolean;x?:number;y?:number;width?:number;height?:number;leftDown?:boolean};
-export type LibmpvStatus={active:boolean;paused?:boolean;muted?:boolean;position?:number;
+export type LibmpvStatus={active:boolean;paused?:boolean;muted?:boolean;position?:number;eofReached?:boolean;
  subtitleVisible?:boolean;subtitleTracks?:{id:number;title:string;selected:boolean}[];
  duration?:number;volume?:number;speed?:number;hwdecCurrent?:string;vsrEnabled?:boolean;playbackError?:string;videoFormat?:string};
 export type LibmpvQuality='standard'|'high'|'rtx';
@@ -55,6 +57,7 @@ export const readerNativeService={
     'library_reader_entries',{id,offset,limit}),
  move:(id:number,destDirectory:string)=>invoke<ReaderMoveResult>('library_reader_move',{id,destDirectory}),
  recycle:(id:number)=>invoke<ReaderRecycleResult>('library_reader_recycle',{id}),
+ recycleQueued:(items:ReaderQueuedRecycle[])=>invoke<ReaderBatchRecycleResult>('library_reader_recycle_queue',{items}),
  pickSource:(directory:boolean)=>open(directory?{directory:true,multiple:false}:{
   directory:false,multiple:false,filters:[{name:'만화 · 전자책 · 동영상',extensions:readerFileExtensions}]
  }),
