@@ -26,12 +26,12 @@ assert.equal(nextFeature,null,'orphaned feature attribute');
 const featureByCommand=name=>
  name.startsWith('external_plugins_native::')||name.startsWith('external_publisher_native::')?'dev-plugin-manager':
  name.startsWith('media_preview_')||name.startsWith('tm_')||name.startsWith('browser_capture_')?'plugin-media':
- name.startsWith('library_')?'plugin-library':
+ name==='desktop_external_file_poll'||name.startsWith('library_')?'plugin-library':
  name.startsWith('hitomi_')?'plugin-sites':
  name.startsWith('mobile_remote_')||name.startsWith('desktop_login_lock_')||name==='desktop_power_allow_remote'?'plugin-remote':
  name==='account_native::account_board_request'?'plugin-board':null;
 test('all production native IPC commands have a unique explicit feature owner',()=>{
- assert.equal(commandPolicy.size,89);
+ assert.equal(commandPolicy.size,91);
  const counts={};
  for(const [name,feature] of commandPolicy){
   const expected=featureByCommand(name);
@@ -39,7 +39,7 @@ test('all production native IPC commands have a unique explicit feature owner',(
   counts[feature??'core']=(counts[feature??'core']??0)+1;
  }
  assert.deepEqual(counts,{
-  'dev-plugin-manager':9,core:18,'plugin-library':61,
+  'dev-plugin-manager':9,core:18,'plugin-library':63,
 
   'plugin-board':1
  });
