@@ -514,7 +514,7 @@ export default function ReaderDock({
     else if(selectedRoot!==null)chooseRoot(null);
   };
   const showContextFor=(event:ReactMouseEvent<HTMLElement>,target:ReaderDockContextTarget)=>{
-    if(compact||!onContextTarget)return;
+    if(!onContextTarget)return;
     event.preventDefault();event.stopPropagation();
     onContextTarget(target,{x:event.clientX,y:event.clientY});
   };
