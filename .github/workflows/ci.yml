@@ -32,6 +32,8 @@ jobs:
         run: npm run test:safety-ui
       - name: Reader layout regressions
         run: npm run test:reader-layout
+      - name: Viewer queue and playback model regressions
+        run: npm run test:viewer-queue
       - name: TypeScript and Vite production build
         run: npm run build
   rust-windows:
@@ -46,6 +48,10 @@ jobs:
           workspaces: desktop-tauri/src-tauri -> target
       - name: Rust check
         run: cargo check --manifest-path desktop-tauri/src-tauri/Cargo.toml
+      - name: Reader batch recycle guard unit tests
+        run: cargo test --manifest-path desktop-tauri/src-tauri/Cargo.toml --lib batch_recycle
+      - name: Windows PowerShell viewer registry syntax check
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File desktop-tauri/scripts/windows-integration/Verify-Viewer.ps1
 
   services:
     runs-on: ubuntu-latest

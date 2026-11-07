@@ -64,5 +64,5 @@ test('portfolio library does not expose remote author rankings or online worker 
  assert.doesNotMatch(core,/library_hitomi_popular/);
  assert.ok(catalog.every(item=>!item.command.startsWith('library_hitomi_popular')));
  const shell=read('../App.tsx');
- assert.match(shell,/<LibraryPluginPage host=\{\{renderReader\}\}\/>/);
+ assert.match(shell,/<LibraryPluginPage host=\{\{renderReader,externalOpen:externalOpen \?\? undefined\}\}\/>/);
 });

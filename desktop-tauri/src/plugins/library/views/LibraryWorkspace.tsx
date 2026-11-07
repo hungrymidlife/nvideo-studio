@@ -33,8 +33,9 @@ function Cover({src}:{src?:string}){
 }
 
 const problem=(error:unknown)=>error instanceof Error?error.message:String(error);
-export default function LibraryWorkspace({renderReader}:{
-  renderReader:ReaderRenderPort
+export default function LibraryWorkspace({renderReader,externalOpen}:{
+  renderReader:ReaderRenderPort;
+  externalOpen?:{path:string;kind:'image'|'video';requestId:number};
 }){
   const [mode,setMode]=useState<Mode>(()=>saved('level','roots'));
   const [root,setRoot]=useState<Entry|null>(()=>saved<Entry|null>('root',null));
@@ -49,6 +50,12 @@ export default function LibraryWorkspace({renderReader}:{
   const [pageSize,setPageSize]=useState(saved('pageSize',60));
   const [page,setPage]=useState(()=>saved('page',0));
   const [readerId,setReaderId]=useState<number|null>(null);
+  const [externalReaderPath,setExternalReaderPath]=useState<string|null>(null);
+  useEffect(()=>{
+    if(!externalOpen)return;
+    setExternalReaderPath(externalOpen.path);
+    setReaderId(-1);
+  },[externalOpen?.requestId]);
   const {items,manualGroups,total,busy,loadedScope,scopeKey,error,setError,
     refreshKey,setRefreshKey}=useLibraryBrowseViewModel({
       mode,root,author,query,tag,sort,direction,online,page,pageSize
@@ -667,13 +674,14 @@ export default function LibraryWorkspace({renderReader}:{
       </div>
     </div>}
     {confirmAction&&<ConfirmActionDialog action={confirmAction} onDismiss={dismissConfirm}/>}
-    {readerId!==null&&renderReader({itemId:readerId,
+    {readerId!==null&&renderReader({itemId:readerId,externalPath:externalReaderPath??undefined,
       browseContext:{mode,root,author,query,tag,online,sort,direction},
       onBrowseChange:applyReaderBrowse,
       onMoveResult:message=>setNotice(message),
       onClose:(lastItemId)=>{
       const openingId=readerId;
       const targetId=lastItemId&&lastItemId>0?lastItemId:openingId;
+      setExternalReaderPath(null);
       setReaderId(null);
       if(!targetId||!['items','all_items'].includes(mode)){
         rememberReaderClose(openingId);

@@ -5,4 +5,6 @@
 import type {ReaderRenderPort} from '../../../plugin-sdk/reader';
 export interface LibraryHostPort{
  renderReader:ReaderRenderPort;
+ /** Local-only Explorer file-open request; no external plugin permissions. */
+ externalOpen?:{path:string;kind:'image'|'video';requestId:number};
 }

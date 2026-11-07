@@ -115,7 +115,12 @@ test('custom Auth HTTPS host is allowed by DEV and RELEASE WebView2 CSP',()=>{
  assert.ok(csp.includes("media-src 'self' "));
  assert.equal(config.app.security.csp,original,'do not mutate checked-in config');
  assert.ok(authCspOverride(config).app.security.csp.includes('https://auth.example.invalid'));
- for(const invalid of ['http://localhost:5000/auth','https://user:password@login.example.org/auth','javascript:alert(1)','invalid-url']){
+ // Preserve credential-in-URL rejection without storing a literal
+ // username:password URL in any checked-in public source file.
+ const synthetic=new URL('https://login.example.org/auth');
+ synthetic.username='example-user';
+ synthetic.password='example-password';
+ for(const invalid of ['http://localhost:5000/auth',synthetic.href,'javascript:alert(1)','invalid-url']){
   assert.throws(()=>authCspOverride(config,invalid),/HTTPS URL/);
  }
  const released=readFileSync(new URL('./release-build.mjs',import.meta.url),'utf8');
