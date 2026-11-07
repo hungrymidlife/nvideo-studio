@@ -3,13 +3,18 @@ import type {CSSProperties} from 'react';
 import {
  ArrowLeft,ChevronLeft,ChevronRight,Clapperboard,Maximize2,
  Minimize2,Move,Pause,Play,RotateCcw,Settings2,Volume2,VolumeX,X,
- Captions,FolderOpen,SkipBack,SkipForward
+ Captions,FolderOpen,SkipBack,SkipForward,Trash2,ListChecks,ExternalLink
 } from 'lucide-react';
 import {invoke} from '@tauri-apps/api/core';
 import {listen} from '@tauri-apps/api/event';
 import {getCurrentWindow} from '@tauri-apps/api/window';
 import {readerNativeService} from '../services/readerNativeService';
 import ReaderDock from './ReaderDock';
+import type {ReaderDockContextTarget} from './ReaderDock';
+import {keyboardDeleteHotkey,nativeDeleteHotkey} from '../model/readerDeleteQueue';
+import type {ReaderDeleteHotkey} from '../model/readerDeleteQueue';
+import {PLAYBACK_MODE_OPTIONS,READER_PLAYBACK_MODE_KEY,readPlaybackMode} from '../model/readerPlaybackMode';
+import type {ReaderPlaybackMode} from '../model/readerPlaybackMode';
 import type {LibraryBrowseContext} from '../../../plugin-sdk/libraryBrowse';
 import type {
  LibmpvAvailability,LibmpvQuality,LibmpvRect,LibmpvStatus
@@ -42,6 +47,9 @@ type Props={
  onOpen:(entry:{id:number;path?:string})=>void;
  onAdjacent:(direction:number)=>void;
  onExit:()=>void;
+ onContextTarget:(target:ReaderDockContextTarget,point:{x:number;y:number})=>void;
+ onDelete:()=>void;onQueueToggle:()=>void;onQueueOpen:()=>void;
+ queueCount:number;queued:boolean;queueHotkey:ReaderDeleteHotkey;modalOpen:boolean;
 };
 type SettingsTab='playback'|'subtitles'|'shortcuts'|'engine';
 type InputOrigin='win32'|'mpv'|'webview'|'unknown';
@@ -64,7 +72,8 @@ const rect=(element:HTMLElement):LibmpvRect=>{
 };
 export default function ReaderLibmpv({
  id,title,mpvHint,sourcePath,rootId,authorId,browseContext,onBrowseChange,
- onOpen,onAdjacent,onExit
+ onOpen,onAdjacent,onExit,onContextTarget,onDelete,onQueueToggle,onQueueOpen,
+ queueCount,queued,queueHotkey,modalOpen
 }:Props){
  const surface=useRef<HTMLDivElement>(null);
  const dock=useRef<HTMLDivElement>(null);
@@ -116,6 +125,14 @@ export default function ReaderLibmpv({
  const subtitleRevision=useRef(0);
  const subtitleQueue=useRef<Promise<unknown>>(Promise.resolve());
  const [settingsOpen,setSettingsOpen]=useState(false);
+ const [contextPoint,setContextPoint]=useState<{x:number;y:number}|null>(null);
+ const [playbackMode,setPlaybackMode]=useState<ReaderPlaybackMode>(()=>
+  readPlaybackMode(localStorage.getItem(READER_PLAYBACK_MODE_KEY)));
+ const playbackModeRef=useRef(playbackMode);
+ playbackModeRef.current=playbackMode;
+ const onAdjacentRef=useRef(onAdjacent);
+ onAdjacentRef.current=onAdjacent;
+ const handledEof=useRef(false);
  const [settingsTab,setSettingsTab]=useState<SettingsTab>('playback');
  const [windowFullscreen,setWindowFullscreen]=useState(false);
  const [windowMaximized,setWindowMaximized]=useState(false);
@@ -374,6 +391,7 @@ export default function ReaderLibmpv({
   void readerNativeService.libmpvStop(id,sessionKey.current).catch(()=>{});
  },[id]);
  const issue=useCallback(async(action:string,value?:number)=>{
+  if(action==='seek'||action==='seek-relative')handledEof.current=false;
   const changesState=['mute','toggle','play','pause','subtitle-id','subtitle-visible'].includes(action);
   const run=async()=>{
    if(!mounted.current)return;
@@ -398,6 +416,12 @@ export default function ReaderLibmpv({
    actionQueue.current=actionQueue.current.then(run,run);await actionQueue.current;
   }else{await run();}
  },[volume]);
+ const changePlaybackMode=(mode:ReaderPlaybackMode)=>{
+  playbackModeRef.current=mode;setPlaybackMode(mode);
+  localStorage.setItem(READER_PLAYBACK_MODE_KEY,mode);
+  handledEof.current=false;
+  if(playing)void issue('loop',mode==='repeat-one'?1:0);
+ };
  const changeSubtitle=(patch:Partial<SubtitleStyle>)=>{
   subtitleRevision.current++;
   setSubtitleStyle(old=>normalizeSubtitleStyle({...old,...patch}));
@@ -428,6 +452,14 @@ export default function ReaderLibmpv({
   setStarting(true);setError('');
   try{
    await readerNativeService.libmpvStart(id,hint,rect(surface.current),quality,sessionKey.current);
+   try{
+    await readerNativeService.libmpvControl('loop',playbackModeRef.current==='repeat-one'?1:0,sessionKey.current);
+   }catch(error){
+    // Don't leave an initialized native player in an invisible 'not playing'
+    // state just because repeat-mode configuration was rejected.
+    console.warn('[NVideo video loop setup]',error);
+   }
+   handledEof.current=false;
    multiview.clear();
    setPlaying(true);
    setStatus({active:true});
@@ -472,6 +504,42 @@ export default function ReaderLibmpv({
   setBottomHover(false);
   onAdjacent(direction);
  },[onAdjacent,starting]);
+ const openVideoContext=(x:number,y:number)=>{
+  setContextPoint({
+   x:Math.max(8,Math.min(x,window.innerWidth-290)),
+   y:Math.max(8,Math.min(y,window.innerHeight-380))
+  });
+ };
+ const openNativeVideoContext=()=>{
+  void readerNativeService.libmpvCursor().then(cursor=>{
+   const x=cursor.inside&&typeof cursor.x==='number'&&cursor.width
+    ?cursor.x*window.innerWidth/cursor.width:window.innerWidth/2;
+   const y=cursor.inside&&typeof cursor.y==='number'&&cursor.height
+    ?cursor.y*window.innerHeight/cursor.height:window.innerHeight/2;
+   openVideoContext(x,y);
+  }).catch(e=>setError('우클릭 위치 확인 실패: '+explain(e)));
+ };
+ const videoMenuAction=async(action:'reveal'|'author'|'delete'|'queue'|'list')=>{
+  setContextPoint(null);
+  try{
+   if(action==='reveal')await readerNativeService.revealActive(id,sourcePath);
+   else if(action==='author'){
+    if(authorId&&authorId>0)await readerNativeService.openFolder('author',authorId);
+    else await readerNativeService.revealActive(id,sourcePath);
+   }else if(action==='delete')onDelete();
+   else if(action==='queue')onQueueToggle();
+   else if(action==='list')onQueueOpen();
+  }catch(e){setError('우클릭 동작 실패: '+explain(e));}
+ };
+ useEffect(()=>{
+  if(!contextPoint)return;
+  const dismiss=(event:PointerEvent)=>{
+   if(!(event.target instanceof Element&&event.target.closest('.reader-libmpv-context-menu')))
+    setContextPoint(null);
+  };
+  window.addEventListener('pointerdown',dismiss,true);
+  return()=>window.removeEventListener('pointerdown',dismiss,true);
+ },[contextPoint]);
  const chooseDll=useCallback(async()=>{
   try{
    const selected=await readerNativeService.pickLibmpvDll();
@@ -535,12 +603,14 @@ export default function ReaderLibmpv({
   }
  },[fullscreen,issue,playing,navigateVideo,volume]);
  const shortcutInput=useCallback((key:string,source:InputOrigin)=>{
+  if(modalOpen)return;
   const now=performance.now();
   const previous=lastInput.current;
   // The same press can arrive from mpv and from its parent Win32 subclass.
   // Suppress only cross-source duplicates, not actual held-arrow repeats.
   if(previous.key===key&&previous.source!==source&&
-     now-previous.at<(key==='VideoClick'?240:90))return;
+     now-previous.at<(key==='VideoClick'?240:
+       key==='VideoContext'||nativeDeleteHotkey(key)?320:90))return;
   if((key==='F11'||key==='FullScreen'||key==='Enter')&&
      previous.key===key&&now-previous.at<350)return;
   lastInput.current={key,source,at:now};
@@ -548,8 +618,19 @@ export default function ReaderLibmpv({
    if(playing)volume.change(key==='WheelUp'?5:-5);
    return;
   }
+  const queueChord=nativeDeleteHotkey(key);
+  if(queueChord&&queueChord===queueHotkey){
+   onQueueToggle();return;
+  }
+  if(key==='VideoContext'){
+   openNativeVideoContext();return;
+  }
+  if(key==='Delete'){
+   onDelete();return;
+  }
   if(key==='Escape'){
-   if(settingsOpen){setSettingsOpen(false);}
+   if(contextPoint){setContextPoint(null);}
+   else if(settingsOpen){setSettingsOpen(false);}
    else if(windowFullscreen){void fullscreen(false);}
    else{void exit();}
    return;
@@ -565,6 +646,7 @@ export default function ReaderLibmpv({
    void fullscreen();setTopHover(true);return;
   }
   if(key==='VideoClick'){
+   if(contextPoint){setContextPoint(null);return;}
    if(!playing||now<suppressVideoClickUntil.current)return;
    if(singleClickTimer.current!==null)window.clearTimeout(singleClickTimer.current);
    singleClickTimer.current=window.setTimeout(()=>{
@@ -582,7 +664,8 @@ export default function ReaderLibmpv({
   }
   const action=libmpvActionForKey(shortcuts,key);
   if(action)runAction(action);
- },[settingsOpen,windowFullscreen,fullscreen,shortcuts,runAction,exit,playing,issue,volume]);
+ },[settingsOpen,windowFullscreen,fullscreen,shortcuts,runAction,exit,playing,issue,volume,
+  queueHotkey,onQueueToggle,contextPoint,modalOpen,onDelete]);
  useEffect(()=>{
   let disposed=false,unlisten:(()=>void)|null=null;
   // Listen before playback too: the engine can focus the VO between loading
@@ -596,8 +679,22 @@ export default function ReaderLibmpv({
   }).then(off=>{if(disposed)off();else unlisten=off;})
     .catch(e=>{if(!disposed)setError('단축키 이벤트 연결 실패: '+explain(e));});
   const onKeyboard=(event:KeyboardEvent)=>{
-   if(event.ctrlKey||event.altKey||event.metaKey||event.isComposing)return;
-   const key=event.key==='Escape'?'Escape':
+   if(modalOpen||event.isComposing)return;
+   if(event.ctrlKey&&!event.altKey&&!event.metaKey){
+    const chord=keyboardDeleteHotkey(event);
+    if(chord===queueHotkey){
+     if(event.target instanceof HTMLElement&&
+        event.target.closest('input,select,textarea,[contenteditable="true"]'))return;
+     event.preventDefault();event.stopPropagation();
+     if(!event.repeat)shortcutInput(
+      chord==='Ctrl+D'?'CtrlKeyD':chord==='Ctrl+Q'?'CtrlKeyQ':'CtrlShiftKeyD',
+      'webview'
+     );
+    }
+    return;
+   }
+   if(event.altKey||event.metaKey)return;
+   const key=event.key==='Delete'?'Delete':event.key==='Escape'?'Escape':
      event.key==='F11'?'F11':
      event.shiftKey&&event.key==='ArrowLeft'?'ShiftArrowLeft':
      event.shiftKey&&event.key==='ArrowRight'?'ShiftArrowRight':
@@ -616,7 +713,7 @@ export default function ReaderLibmpv({
       target.closest('input,select,textarea,button,[contenteditable="true"]')){
     return;
    }
-   if(key!=='Escape'&&key!=='F11'&&
+   if(key!=='Escape'&&key!=='F11'&&key!=='Delete'&&
       key!=='ShiftArrowLeft'&&key!=='ShiftArrowRight'&&
       !libmpvActionForKey(shortcuts,key)){
     return;
@@ -630,7 +727,7 @@ export default function ReaderLibmpv({
    disposed=true;unlisten?.();
    window.removeEventListener('keydown',onKeyboard,true);
   };
- },[shortcutInput,shortcuts]);
+ },[shortcutInput,shortcuts,queueHotkey,onQueueToggle,modalOpen]);
 
  useEffect(()=>{
   if(!playing)return;
@@ -649,6 +746,10 @@ export default function ReaderLibmpv({
      subtitleVisible:playback.current.subtitleVisible,subtitleTracks:playback.current.subtitleTracks};
    }
    if(next.playbackError)setError(next.playbackError);
+   if(next.eofReached&&!handledEof.current){
+    handledEof.current=true;
+    if(playbackModeRef.current==='next')onAdjacentRef.current(1);
+   }
    playback.current=next;
    setStatus(next);
    if(!next.active)setPlaying(false);
@@ -710,6 +811,15 @@ export default function ReaderLibmpv({
     <span className="reader-libmpv-brand"><Clapperboard size={16}/> NVIDEO</span>
     <strong className="reader-libmpv-title" title={title}>{title}</strong>
     <span className="reader-libmpv-engine">libmpv</span>
+    <select className="reader-libmpv-mode" aria-label="영상 종료 후 재생 방식"
+     value={playbackMode} onChange={event=>changePlaybackMode(event.target.value as ReaderPlaybackMode)}>
+     {PLAYBACK_MODE_OPTIONS.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}
+    </select>
+    <button type="button" aria-label="삭제 대기 목록" title="여러 파일 선택 후 일괄 휴지통 이동"
+     onClick={onQueueOpen}><ListChecks size={16}/> 삭제 목록 ({queueCount})</button>
+    <button type="button" aria-label="현재 영상을 삭제 목록에 추가 또는 제거"
+     aria-pressed={queued} title={queueHotkey+' · 삭제 대기 목록에 추가/제거'}
+     onClick={onQueueToggle}><ListChecks size={16}/>{queued?'선택됨':'삭제 예약'}</button>
     <button type="button" className="reader-libmpv-multiview-toggle"
      aria-label="멀티뷰 모드" aria-pressed={multiviewEnabled}
      title={multiviewEnabled?'멀티뷰 끄기 · 리스트 스와이프로 복귀':'멀티뷰 켜기 · 카드를 본 화면으로 드래그'}
@@ -786,7 +896,11 @@ export default function ReaderLibmpv({
    onPointerUp={()=>{videoPointerStart.current=null;}}
    onPointerCancel={()=>{videoPointerStart.current=null;}}
    onClick={()=>shortcutInput('VideoClick','webview')}
-   onDoubleClick={()=>shortcutInput('FullScreen','webview')}>
+   onDoubleClick={()=>shortcutInput('FullScreen','webview')}
+   onContextMenu={event=>{
+    event.preventDefault();event.stopPropagation();
+    openVideoContext(event.clientX,event.clientY);
+   }}>
    <div className="reader-libmpv-grid"
     data-multiview-count={multiview.tiles.length+1}
     style={{gridTemplateColumns:`repeat(${multiviewColumns(multiview.tiles.length+1)},minmax(0,1fr))`}}>
@@ -1085,7 +1199,8 @@ export default function ReaderLibmpv({
     <ReaderDock sourcePath={sourcePath} title={title}
       rootId={rootId} authorId={authorId} compact
       browseContext={browseContext} onBrowseChange={onBrowseChange}
-      open={showDock} onOpen={onOpen} onVideoDragChange={setVideoDragActive}
+      open={showDock} onOpen={onOpen} onContextTarget={onContextTarget}
+      onVideoDragChange={setVideoDragActive}
        multiviewEnabled={multiviewEnabled}/>
   </div>
 
@@ -1127,6 +1242,28 @@ export default function ReaderLibmpv({
      }}/>
    </div>
   </footer>
+  {contextPoint&&<div className="reader-libmpv-context-menu" role="menu"
+   style={{left:contextPoint.x,top:contextPoint.y}}
+   onContextMenu={event=>event.preventDefault()}
+   onPointerDown={event=>event.stopPropagation()}>
+   <strong title={sourcePath}>{title}</strong>
+   <button type="button" role="menuitem" onClick={()=>void videoMenuAction('reveal')}>
+    <ExternalLink size={15}/> 원본 위치 열기</button>
+   <button type="button" role="menuitem" onClick={()=>void videoMenuAction('author')}>
+    <FolderOpen size={15}/> 작가 폴더 열기</button>
+   <button type="button" role="menuitem" onClick={()=>void videoMenuAction('queue')}>
+    <ListChecks size={15}/> {queued?'삭제 목록에서 제외':'삭제 목록에 추가'} ({queueHotkey})</button>
+   <button type="button" role="menuitem" onClick={()=>void videoMenuAction('list')}>
+    <ListChecks size={15}/> 삭제 목록 관리 ({queueCount})</button>
+   <button type="button" role="menuitem" className="danger"
+    onClick={()=>void videoMenuAction('delete')}>
+    <Trash2 size={15}/> 현재 영상 휴지통 이동</button>
+   <div className="reader-libmpv-context-modes">영상 종료 후</div>
+   {PLAYBACK_MODE_OPTIONS.map(option=><button type="button" role="menuitemradio"
+    aria-checked={playbackMode===option.value} key={option.value}
+    onClick={()=>{changePlaybackMode(option.value);setContextPoint(null);}}>
+    {playbackMode===option.value?'●':'○'} {option.label}</button>)}
+  </div>}
   {feedback&&<div key={feedback.serial} className="reader-libmpv-feedback" role="status" aria-live="polite">
    {feedback.kind==='play'?<Play size={29} fill="currentColor"/>:
     feedback.kind==='pause'?<Pause size={29} fill="currentColor"/>:
