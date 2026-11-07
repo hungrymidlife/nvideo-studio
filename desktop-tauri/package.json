@@ -28,7 +28,7 @@
     "release:matrix": "node --experimental-strip-types scripts/release-build.mjs matrix",
     "test:release-builder": "node --experimental-strip-types --test scripts/release-builder.test.mjs",
     "test:release-frontend": "node --experimental-strip-types --test src/plugin-host/releaseFrontend.test.mjs src/plugin-host/releaseProfileComposer.test.mjs src/plugin-host/nativeReleaseBoundary.test.mjs src/plugin-host/releaseSelfTest.test.mjs",
-    "test:viewer-queue": "node --experimental-strip-types --test src/plugins/reader/model/readerDeleteQueue.test.mjs src/plugins/reader/model/readerPlaybackMode.test.mjs"
+    "test:viewer-queue": "node --experimental-strip-types --test src/plugins/reader/model/readerDeleteQueue.test.mjs src/plugins/reader/model/readerPlaybackMode.test.mjs src/plugin-host/windowsViewerRegistration.test.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",
