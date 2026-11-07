@@ -235,6 +235,28 @@ export default function App() {
     });
   };
   const [libraryVisited, setLibraryVisited] = useState(false);
+  const [externalOpen,setExternalOpen]=useState<{path:string;kind:'image'|'video';requestId:number}|null>(null);
+  const externalSerial=useRef(0);
+  useEffect(()=>{
+    if(!__NVIDEO_LIBRARY_ENABLED__)return;
+    let live=true,pending=false;
+    const poll=async()=>{
+      if(pending)return;
+      pending=true;
+      try{
+        const request=await invoke<{path:string;kind:'image'|'video'}|null>('desktop_external_file_poll');
+        if(!live||!request)return;
+        if(builtinPlugins.availability('nvideo.library',disabledPluginIds)!=='available')return;
+        setExternalOpen({...request,requestId:++externalSerial.current});
+        setLibraryVisited(true);
+        setView('library');
+      }catch(error){console.error('[NVideo external viewer]',error);}
+      finally{pending=false;}
+    };
+    void poll();
+    const interval=window.setInterval(()=>{void poll();},550);
+    return()=>{live=false;window.clearInterval(interval);};
+  },[disabledPluginIds]);
   const [collapsed, setCollapsed] = useState(false);
   const [settingsExpanded,setSettingsExpanded]=useState(false);
   const [settingsSection,setSettingsSection]=useState<SettingsSection>('general');
@@ -418,7 +440,7 @@ export default function App() {
 
         {libraryVisited && builtinPlugins.availability('nvideo.library',disabledPluginIds)==='available' && <div style={{display:view === 'library' ? 'block' : 'none'}}>
           <PluginErrorBoundary pluginId="nvideo.library" onOpenManager={__NVIDEO_DEVELOPER_TOOLS__?()=>setPluginManagerOpen(true):undefined}>
-            <LibraryPluginPage host={{renderReader}}/></PluginErrorBoundary></div>}
+            <LibraryPluginPage host={{renderReader,externalOpen}}/></PluginErrorBoundary></div>}
 
 
 
