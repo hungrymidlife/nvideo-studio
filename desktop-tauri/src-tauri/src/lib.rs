@@ -1,5 +1,7 @@
 mod account_native;
 mod profile_instance;
+#[cfg(all(windows, feature = "plugin-library"))]
+mod external_viewer;
 mod release_self_test;
 mod storage_paths;
 mod native_build_profile;
@@ -949,6 +951,8 @@ tauri::generate_handler![
             library_reader_open,
             #[cfg(feature = "plugin-library")]
             library_reader_open_path,
+            #[cfg(all(windows, feature = "plugin-library"))]
+            desktop_external_file_poll,
             #[cfg(feature = "plugin-library")]
             library_reader_adjacent,
             #[cfg(feature = "plugin-library")]
@@ -1034,6 +1038,16 @@ tauri::generate_handler![
         ]
 }
 pub fn run_release_self_test(input:&str)->Result<(),String>{release_self_test::run(input)}
+#[cfg(all(windows, feature = "plugin-library"))]
+pub fn queue_external_from_current_args(){
+    if let Err(error)=external_viewer::enqueue_args(std::env::args_os()){
+        eprintln!("[NVideo Explorer viewer] {error}");
+    }
+}
+#[cfg(all(windows, feature = "plugin-library"))]
+#[tauri::command]
+fn desktop_external_file_poll()->Option<Value>{external_viewer::take()}
+
 
 pub fn run() {
     #[cfg(feature = "native-selective")]
