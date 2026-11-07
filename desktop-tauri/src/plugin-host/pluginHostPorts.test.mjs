@@ -11,7 +11,7 @@ function suppliedProps(name){
  const expression=new RegExp('<'+name+' host=\\{\\{([\\s\\S]*?)\\}\\}/>');
  const match=expression.exec(app);
  assert.ok(match,'Missing '+name+' host port binding');
- return match[1].split(',').map(x=>x.trim()).filter(Boolean).sort();
+ return match[1].split(',').map(x=>x.trim().split(':')[0]).filter(Boolean).sort();
 }
 
 test('Library Core navigation port is typed and supplied without extra properties',()=>{
