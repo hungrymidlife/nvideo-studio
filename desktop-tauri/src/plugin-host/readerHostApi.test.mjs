@@ -19,7 +19,7 @@ test('Host provides a typed Reader render port via Reader public entrypoint',()=
  assert.match(sdk,/export type ReaderRenderPort=\(request:ReaderMountProps\)=>ReactNode/);
  assert.match(host,/renderReader:ReaderRenderPort/);
  assert.match(app,/const renderReader:ReaderRenderPort=props=><ReaderPluginOutlet \{\.\.\.props\}\/>/);
- assert.match(app,/<LibraryPluginPage host=\{\{renderReader,externalOpen\}\}\/>/);
+ assert.match(app,/<LibraryPluginPage host=\{\{renderReader,externalOpen:externalOpen \?\? undefined\}\}\/>/);
  assert.match(outlet,/import LibraryReader from '\.\/views\/LibraryReader'/);
  assert.match(outlet,/return <LibraryReader \{\.\.\.props\}\/>/);
  assert.match(page,/renderReader=\{host\.renderReader\}/);
