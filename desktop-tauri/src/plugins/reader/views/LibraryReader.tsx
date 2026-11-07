@@ -52,7 +52,7 @@ const SHORTCUTS=[
   ['F2 / Ctrl+B / Ctrl+Shift+B','후속 이식 대상'],
 ] as const;
 
-export default function LibraryReader({itemId,onClose,onMoveResult,browseContext,onBrowseChange}:ReaderMountProps){
+export default function LibraryReader({itemId,externalPath,onClose,onMoveResult,browseContext,onBrowseChange}:ReaderMountProps){
   const [book,setBook]=useState<Book|null>(null);
   const [activeId,setActiveId]=useState(itemId);
   const [index,setIndex]=useState(0);
@@ -297,11 +297,11 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
   },[]);
   useEffect(()=>{
     let live=true;setBusy(true);setError('');
-    void readerNativeService.openById(itemId).then(info=>{
+    void (externalPath?readerNativeService.openByPath(externalPath):readerNativeService.openById(itemId)).then(info=>{
       if(live)adopt(info);
     }).catch(e=>{if(live){setError(message(e));setBusy(false);}});
     return()=>{live=false;++generation.current;};
-  },[itemId,adopt]);
+  },[itemId,externalPath,adopt]);
 
   const fetchPage=useCallback((n:number,force=false)=>{
     if(!book||n<0||n>=book.total)return;
