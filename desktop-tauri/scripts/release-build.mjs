@@ -61,6 +61,11 @@ for(const plan of plans){
  const portable=join(out,'NVideoStudio_Portable');mkdirSync(portable);
  copyFileSync(exe,join(portable,'nvideo-studio.exe'));
  writeFileSync(join(portable,'nvideo-portable.marker'),'NVideo Studio selective portable v1\n');
+ // Explorer registration is opt-in and shipped only when the Library is compiled.
+ if(plan.plugins.includes('nvideo.library')){
+  cpSync(join(root,'scripts','windows-integration'),
+    join(portable,'Windows-Integration'),{recursive:true});
+ }
  const tools=[]; const toolSources=[];
  for(const [source,destination] of toolPolicy(plan.plugins)){
   let input=[join(root,'..','tools',source),join(root,'tools',source)].find(existsSync);
