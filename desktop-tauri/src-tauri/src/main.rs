@@ -112,6 +112,10 @@ fn main() {
         }
         return
     }
+    // Explorer file-open requests are delivered before the profile instance
+    // lock redirects a second launch to the already-running window.
+    #[cfg(all(windows, feature = "plugin-library"))]
+    nvideo_studio_lib::queue_external_from_current_args();
     #[cfg(debug_assertions)]
     let _vite = match dev_frontend::prepare() {
         Ok(child) => child,
