@@ -192,6 +192,10 @@
     "feature": "plugin-library"
   },
   {
+    "command": "desktop_external_file_poll",
+    "feature": "plugin-library"
+  },
+  {
     "command": "library_reader_adjacent",
     "feature": "plugin-library"
   },
@@ -205,6 +209,10 @@
   },
   {
     "command": "library_reader_recycle",
+    "feature": "plugin-library"
+  },
+  {
+    "command": "library_reader_recycle_queue",
     "feature": "plugin-library"
   },
   {

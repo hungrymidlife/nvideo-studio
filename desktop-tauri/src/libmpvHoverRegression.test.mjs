@@ -41,7 +41,9 @@ test('hover polling updates two zones independently and does not leave an 8px ra
  assert.match(css,/\.reader-libmpv\.is-bottom-hidden/);
  assert.match(css,/display:none!important/);
  assert.doesNotMatch(player,/reader-libmpv-reveal|setChromeVisible/);
- assert.doesNotMatch(player, /\breveal\b/);
+ // "reveal" is now a user-initiated file-location context action,
+ // not a hover-reveal rail; the old overlay remains forbidden above.
+ assert.match(player,/videoMenuAction\('reveal'\)/);
  // Assert listener lifecycle and initial fullscreen sync separately; an
  // additional mount-time state query must not invalidate event cleanup.
  assert.match(player,/window\.addEventListener\('nvideo-libmpv-fullscreen',sync\);/);

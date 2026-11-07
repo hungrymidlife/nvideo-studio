@@ -3,7 +3,7 @@ import {getCurrentWindow} from '@tauri-apps/api/window';
 import type {CSSProperties,MouseEvent as ReactMouseEvent,PointerEvent as ReactPointerEvent,WheelEvent as ReactWheelEvent} from 'react';
 import {readerNativeService} from '../services/readerNativeService';
 import type {ReaderBook as Book,ReaderPage as Page} from '../services/readerNativeService';
-import {ChevronLeft,ChevronRight,Maximize,Minimize,X,BookOpen,RotateCcw,Settings2,FolderOpen,ExternalLink,Trash2} from 'lucide-react';
+import {ChevronLeft,ChevronRight,Maximize,Minimize,X,BookOpen,RotateCcw,Settings2,FolderOpen,ExternalLink,Trash2,ListChecks} from 'lucide-react';
 import './LibraryReader.css';
 import ReaderDock from './ReaderDock';
 import type {ReaderDockContextTarget} from './ReaderDock';
@@ -17,6 +17,10 @@ import {chromeVisibility,nextChromePin} from '../model/readerChromePin';
 import type {ChromePin} from '../model/readerChromePin';
 import {parseReaderViewPresets,nextViewProfile,restoreReaderLayout,restoreReaderProfile,VIEW_PRESETS_KEY,VIEW_ACTIVE_KEY} from '../model/readerViewPresets';
 import {onSettingChanged,notifySettingChanged} from '../../../shared/settings/settingsSync';
+import {DELETE_HOTKEYS,READER_DELETE_QUEUE_KEY,READER_DELETE_HOTKEY_KEY,
+ readQueuedDeletes,readDeleteHotkey,toggleQueuedDelete,sameQueuedPath,keyboardDeleteHotkey}
+ from '../model/readerDeleteQueue';
+import type {QueuedReaderDelete,ReaderDeleteHotkey} from '../model/readerDeleteQueue';
 import {useReaderPresentationViewModel} from '../hooks/useReaderPresentationViewModel';
 import {WEBTOON_NEXT_PAGES,WEBTOON_MAX_REQUESTS,webtoonWindowAt,shiftWebtoonWindow,webtoonPageIndices} from '../model/readerWebtoonWindow';
 import type {ReaderLayout as Layout,ReaderFit as Fit,ReaderViewPreset,ReaderViewPresets,ViewProfile} from '../model/readerViewPresets';
@@ -47,12 +51,13 @@ const SHORTCUTS=[
   ['P','로컬 책장으로 돌아가기'],
   ['F3','저장된 이동 대상에 작품 이동 (커스텀 확인창)'],
   ['Delete','현재 작품을 Windows 휴지통으로 이동 (확인창)'],
+  ['Ctrl+D (변경 가능)','현재 작품을 삭제 대기 목록에 추가/제외'],
   ['휠 / Ctrl+휠','페이지 이동 / 확대·축소'],['휠 클릭 / 더블클릭','전체화면'],
   ['좌우 마우스 드래그','이전·다음 페이지 이동'],
   ['F2 / Ctrl+B / Ctrl+Shift+B','후속 이식 대상'],
 ] as const;
 
-export default function LibraryReader({itemId,onClose,onMoveResult,browseContext,onBrowseChange}:ReaderMountProps){
+export default function LibraryReader({itemId,externalPath,onClose,onMoveResult,browseContext,onBrowseChange}:ReaderMountProps){
   const [book,setBook]=useState<Book|null>(null);
   const [activeId,setActiveId]=useState(itemId);
   const [index,setIndex]=useState(0);
@@ -118,6 +123,16 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
   const [moveCandidate,setMoveCandidate]=useState<{source:string;dest:string;name:string}|null>(null);
   const [deleteCandidate,setDeleteCandidate]=useState<{id:number;source:string;name:string}|null>(null);
   const [contextMenu,setContextMenu]=useState<(ReaderDockContextTarget&{x:number;y:number})|null>(null);
+  // Only the explicit confirmation path can invoke the native recycle IPC.
+  const [deleteQueue,setDeleteQueue]=useState<QueuedReaderDelete[]>(()=>
+    readQueuedDeletes(localStorage.getItem(READER_DELETE_QUEUE_KEY)));
+  const [queueHotkey,setQueueHotkey]=useState<ReaderDeleteHotkey>(()=>
+    readDeleteHotkey(localStorage.getItem(READER_DELETE_HOTKEY_KEY)));
+  const [queueOpen,setQueueOpen]=useState(false);
+  const [queueConfirm,setQueueConfirm]=useState(false);
+  const [queueRunning,setQueueRunning]=useState(false);
+  useEffect(()=>{localStorage.setItem(READER_DELETE_QUEUE_KEY,JSON.stringify(deleteQueue));},[deleteQueue]);
+  useEffect(()=>{localStorage.setItem(READER_DELETE_HOTKEY_KEY,queueHotkey);},[queueHotkey]);
   const [moveDestination,setMoveDestination]=useState(()=>
     localStorage.getItem('nvideo-reader-f3-target-v1')||'');
   const dismissMove=useCallback(()=>setMoveCandidate(null),[]);
@@ -297,11 +312,11 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
   },[]);
   useEffect(()=>{
     let live=true;setBusy(true);setError('');
-    void readerNativeService.openById(itemId).then(info=>{
+    void (externalPath?readerNativeService.openByPath(externalPath):readerNativeService.openById(itemId)).then(info=>{
       if(live)adopt(info);
     }).catch(e=>{if(live){setError(message(e));setBusy(false);}});
     return()=>{live=false;++generation.current;};
-  },[itemId,adopt]);
+  },[itemId,externalPath,adopt]);
 
   const fetchPage=useCallback((n:number,force=false)=>{
     if(!book||n<0||n>=book.total)return;
@@ -538,6 +553,9 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
       const candidates=await Promise.all([1,-1].map(direction=>
         readerNativeService.adjacentTarget(deleteCandidate.id,direction,browseContext)
           .catch(()=>null)));
+      if(book?.kind==='video'&&book.sourcePath===deleteCandidate.source){
+        await readerNativeService.libmpvStop(deleteCandidate.id);
+      }
       const result=await readerNativeService.recycle(deleteCandidate.id);
       if(!result.deleted||!result.recycled)throw new Error('휴지통 이동을 완료하지 못했습니다.');
       onMoveResult?.('Delete: '+deleteCandidate.name+' · Windows 휴지통 이동 완료');
@@ -566,10 +584,70 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
       setBusy(false);throw error;
     }
   },[deleteCandidate,browseContext,onMoveResult,adopt,finish]);
+  const queueKind=(source:string):QueuedReaderDelete['kind']=>{
+    if(/\.(mp4|m4v|mov|mkv|avi|wmv|webm|mpg|mpeg|ts)$/i.test(source))return 'video';
+    if(/\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(source))return 'image';
+    return 'other';
+  };
+  const toggleQueueItem=useCallback((item:QueuedReaderDelete)=>{
+    const wasQueued=deleteQueue.some(row=>sameQueuedPath(row.path,item.path));
+    if(!wasQueued&&deleteQueue.length>=100){
+      setNotice('삭제 목록은 최대 100개까지 등록할 수 있습니다.');return;
+    }
+    setDeleteQueue(previous=>toggleQueuedDelete(previous,item));
+    setNotice(wasQueued?'삭제 목록에서 제외했습니다.':'삭제 목록에 추가했습니다. 파일은 삭제되지 않았습니다.');
+  },[deleteQueue]);
+  const toggleCurrentQueue=useCallback(()=>{
+    if(!book?.sourcePath){setNotice('현재 작품의 경로가 없습니다.');return;}
+    toggleQueueItem({id:activeIdRef.current,path:book.sourcePath,title:book.title,
+      kind:book.kind==='video'?'video':queueKind(book.sourcePath)});
+  },[book,toggleQueueItem]);
+  const executeQueuedDelete=useCallback(async()=>{
+    if(queueRunning||!deleteQueue.length)throw new Error('삭제할 대상이 없습니다.');
+    const snapshot=[...deleteQueue];
+    const activeSource=book?.sourcePath||'';
+    const deletingActive=snapshot.some(item=>sameQueuedPath(item.path,activeSource));
+    setQueueRunning(true);
+    try{
+      const neighbors=deletingActive?await Promise.all([1,-1].map(direction=>
+        readerNativeService.adjacentTarget(activeIdRef.current,direction,browseContext)
+          .catch(()=>null))):[];
+      if(deletingActive&&book?.kind==='video'){
+        // Release the native file handle before Windows Shell recycling.
+        await readerNativeService.libmpvStop(activeIdRef.current);
+      }
+      const result=await readerNativeService.recycleQueued(snapshot.map(item=>
+        ({id:item.id,path:item.path})));
+      const successful=result.results.filter(item=>item.deleted).map(item=>item.path);
+      const failures=result.results.filter(item=>!item.deleted);
+      const remaining=snapshot.filter(item=>!successful.some(path=>sameQueuedPath(path,item.path)));
+      // A successful deletion can close this reader on the same tick. Persist
+      // synchronously so unmount does not resurrect already recycled files.
+      localStorage.setItem(READER_DELETE_QUEUE_KEY,JSON.stringify(remaining));
+      setDeleteQueue(remaining);
+      setQueueOpen(failures.length>0);
+      const summary='휴지통 이동 '+successful.length+'개 완료 · 실패 '+failures.length+'개';
+      setNotice(summary+(failures.length?' · 실패 항목은 목록에 남겨뒀습니다.':''));
+      onMoveResult?.(summary);
+      if(failures.length)setError(failures.map(item=>item.path+': '+(item.error||'실패')).slice(0,5).join(' / '));
+      if(!deletingActive||!successful.some(path=>sameQueuedPath(path,activeSource)))return;
+      for(const candidate of neighbors){
+        if(!candidate)continue;
+        if(snapshot.some(item=>successful.some(path=>sameQueuedPath(path,item.path))&&
+          (candidate.id>0?candidate.id===item.id:!!candidate.path&&sameQueuedPath(candidate.path,item.path))))continue;
+        try{
+          const info=candidate.id>0?await readerNativeService.openById(candidate.id):
+            candidate.path?await readerNativeService.openByPath(candidate.path):null;
+          if(info){adopt(info);return;}
+        }catch{/* Try the other adjacent item. */}
+      }
+      finish();
+    }finally{setQueueRunning(false);}
+  },[queueRunning,deleteQueue,book,browseContext,adopt,finish,onMoveResult]);
   const openContextMenu=useCallback((target:ReaderDockContextTarget,
       point:{x:number;y:number})=>{
     if(moveCandidate||deleteCandidate||viewSettingsOpen)return;
-    const width=265,height=274;
+    const width=265,height=380;
     setContextMenu({...target,
       x:clamp(point.x,8,Math.max(8,window.innerWidth-width-8)),
       y:clamp(point.y,8,Math.max(8,window.innerHeight-height-8))});
@@ -583,11 +661,19 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
     window.addEventListener('pointerdown',dismiss,true);
     return()=>window.removeEventListener('pointerdown',dismiss,true);
   },[contextMenu]);
-  const runContextAction=useCallback(async(action:'open'|'reveal'|'author'|'delete')=>{
+  const runContextAction=useCallback(async(action:'open'|'reveal'|'author'|'delete'|'queue'|'list')=>{
     const target=contextMenu;
     if(!target)return;
     setContextMenu(null);
     try{
+      if(action==='list'){setQueueOpen(true);return;}
+      if(action==='queue'){
+        const path=target.path||((target.id===activeIdRef.current)?book?.sourcePath:undefined);
+        if(target.kind!=='author'&&path)toggleQueueItem({
+          id:target.id,path,title:target.name,kind:queueKind(path)
+        });
+        return;
+      }
       if(action==='open'){
         if(target.kind==='author'){
           onBrowseChange?.({...browseContext!,mode:'items',
@@ -628,7 +714,7 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
     }catch(error){
       setNotice('우클릭 동작 실패: '+message(error));
     }
-  },[contextMenu,onBrowseChange,browseContext,book,adopt,finish]);
+  },[contextMenu,onBrowseChange,browseContext,book,adopt,finish,toggleQueueItem]);
   const openCatalogSource=useCallback(async(entry:{id:number;path?:string})=>{
     try{
       setBusy(true);
@@ -735,6 +821,10 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
         if(e.key==='Escape'){e.preventDefault();setViewSettingsOpen(false);}
         return;
       }
+      if(queueOpen||queueConfirm){
+        if(e.key==='Escape'){e.preventDefault();setQueueConfirm(false);setQueueOpen(false);}
+        return;
+      }
       const lower=e.key.toLowerCase();
       // Toolbar pinning is global, even when keyboard focus is in the
       // bookshelf dock. Other reader shortcuts still belong to that dock.
@@ -763,6 +853,16 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
         return;
       }
       if(e.ctrlKey){
+        const queueChord=keyboardDeleteHotkey(e);
+        if(queueChord===queueHotkey){
+          // Native libmpv's WebView and Win32 input are handled by the player.
+          if(isVideo)return;
+          if(!editable&&!queueRunning){
+            e.preventDefault();e.stopPropagation();
+            if(!e.repeat)toggleCurrentQueue();
+          }
+          return;
+        }
         if(lower==='l'){
           e.preventDefault();setPicker(false);setToolbarVisible(true);
           pageInputRef.current?.focus();pageInputRef.current?.select();
@@ -852,7 +952,8 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
   },[adjacent,book,changeZoom,chooseDelete,chooseMove,finish,fitTo,fullscreenToggle,index,legacyPending,
       moveCandidate,deleteCandidate,contextMenu,navigate,next,openSelected,pageJump,picker,refresh,showHelp,
       isDocument,isVideo,isPdf,isDirectory,embeddedVideo,viewSettingsOpen,switchViewPreset,
-      chromePinned,topVisible,bottomVisible]);
+      chromePinned,topVisible,bottomVisible,queueHotkey,queueOpen,queueConfirm,
+      queueRunning,toggleCurrentQueue]);
   const onWheel=(e:ReactWheelEvent<HTMLDivElement>)=>{
     if(!book)return;
     if(e.ctrlKey){
@@ -1004,6 +1105,11 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
       <button onClick={openViewSettings} title="웹툰·만화·자동 보기 설정 저장">
         <Settings2 size={16}/> 보기 설정</button>
       </>}
+      <button type="button" title={queueHotkey+' · 현재 작품 삭제 대기 목록에 추가/제외'}
+        aria-pressed={Boolean(book?.sourcePath&&deleteQueue.some(row=>sameQueuedPath(row.path,book.sourcePath)))}
+        onClick={toggleCurrentQueue}><ListChecks size={16}/> 삭제 예약</button>
+      <button type="button" title="삭제 대기 목록 관리 · 실제 파일 삭제는 최종 확인 후 실행"
+        onClick={()=>setQueueOpen(true)}>삭제 목록 ({deleteQueue.length})</button>
       <button title={moveDestination?'저장된 F3 대상: '+moveDestination:'F3 이동 대상이 아직 설정되지 않았습니다.'}
         onClick={()=>void configureMove()}>
         {moveDestination?'F3 대상: '+(moveDestination.split(/[\\/]/).filter(Boolean).pop()||moveDestination):'F3 대상 설정'}
@@ -1030,7 +1136,13 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
         rootId={book.rootId} authorId={book.authorId}
         browseContext={browseContext} onBrowseChange={onBrowseChange}
         onOpen={entry=>void openCatalogSource(entry)}
-        onAdjacent={direction=>void adjacentVideo(direction)}/>:
+        onAdjacent={direction=>void adjacentVideo(direction)}
+        onContextTarget={openContextMenu}
+        onDelete={chooseDelete} onQueueToggle={toggleCurrentQueue}
+        onQueueOpen={()=>setQueueOpen(true)} queueCount={deleteQueue.length}
+        queued={deleteQueue.some(row=>sameQueuedPath(row.path,book.sourcePath))}
+        queueHotkey={queueHotkey}
+        modalOpen={queueOpen||queueConfirm||!!deleteCandidate||!!moveCandidate}/>:
       isPdf&&book?<div className="reader-pdf-container">
         <iframe title={book.title} className="reader-pdf-iframe"
           src={(navigator.userAgent.includes('Windows')
@@ -1094,6 +1206,55 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
       <button onClick={()=>navigate(0)} title="처음부터"><RotateCcw size={17}/></button>
       <button onClick={finish} title="뷰어 닫기 (Esc)">닫기</button>
     </footer>}
+    {queueOpen&&<div className="native-reader-modal-backdrop"
+      onMouseDown={event=>{if(event.target===event.currentTarget&&!queueRunning)setQueueOpen(false);}}>
+      <section className="native-reader-modal native-reader-queue-modal" role="dialog" aria-modal="true"
+        aria-label="삭제 대기 목록">
+        <div className="native-reader-modal-head">
+          <strong><ListChecks size={18}/> 삭제 대기 목록 · {deleteQueue.length}개</strong>
+          <button type="button" disabled={queueRunning} onClick={()=>setQueueOpen(false)}>닫기</button>
+        </div>
+        <p>목록에 등록하는 것만으로 파일은 삭제되지 않습니다.
+          일괄 실행을 누른 뒤 다시 확인하면 Windows 휴지통으로 이동합니다.</p>
+        <label className="native-reader-queue-shortcut">
+          삭제 목록 추가/제외 단축키
+          <select aria-label="삭제 대기 목록 단축키" value={queueHotkey}
+            onChange={event=>setQueueHotkey(event.target.value as ReaderDeleteHotkey)}>
+            {DELETE_HOTKEYS.map(key=><option key={key} value={key}>{key}</option>)}
+          </select>
+        </label>
+        {deleteQueue.length?
+          <ul className="native-reader-queue-items">
+            {deleteQueue.map(row=><li key={row.path}>
+              <span><strong>{row.title}</strong><small title={row.path}>{row.path}</small></span>
+              <button type="button" disabled={queueRunning}
+                aria-label={row.title+' 삭제 대기 목록에서 제외'} onClick={()=>
+                  setDeleteQueue(previous=>previous.filter(item=>!sameQueuedPath(item.path,row.path)))}>
+                제외</button>
+            </li>)}
+          </ul>:<p className="native-reader-queue-empty">
+            목록이 비어 있습니다. 작품을 보면서 {queueHotkey}를 누르거나 우클릭 메뉴에서 추가하세요.
+          </p>}
+        <div className="native-reader-queue-actions">
+          <button type="button" disabled={!deleteQueue.length||queueRunning}
+            onClick={()=>setDeleteQueue([])}>목록 비우기</button>
+          <button type="button" className="danger" disabled={!deleteQueue.length||queueRunning}
+            onClick={()=>setQueueConfirm(true)}>
+            <Trash2 size={15}/> {deleteQueue.length}개 휴지통 이동…
+          </button>
+        </div>
+      </section>
+    </div>}
+    {queueConfirm&&deleteQueue.length>0&&<ConfirmActionDialog
+      action={{
+        title:'삭제 대기 목록 일괄 휴지통 이동',
+        description:'선택한 실제 파일/폴더를 Windows 휴지통으로 이동합니다. 경로·색인 ID를 다시 확인하며, 실패 항목은 대기 목록에 남습니다. 이 작업은 되돌리려면 Windows 휴지통에서 복원해야 합니다.',
+        targets:deleteQueue.slice(0,20).map(item=>item.title+' · '+item.path).concat(
+          deleteQueue.length>20?['외 '+(deleteQueue.length-20)+'개']:[]),
+        actionLabel:'선택한 '+deleteQueue.length+'개 휴지통 이동',danger:true,
+        onConfirm:executeQueuedDelete
+      }}
+      onDismiss={()=>setQueueConfirm(false)}/>}
     {deleteCandidate&&<ConfirmActionDialog
       action={{
         title:'Delete · 작품 휴지통 이동',
@@ -1223,6 +1384,14 @@ export default function LibraryReader({itemId,onClose,onMoveResult,browseContext
       <button type="button" role="menuitem"
         onClick={()=>void runContextAction('author')}>
         <FolderOpen size={15}/> 작가 폴더 열기
+      </button>
+      {contextMenu.kind!=='author'&&contextMenu.path&&
+        <button type="button" role="menuitem" onClick={()=>void runContextAction('queue')}>
+          <ListChecks size={15}/> {deleteQueue.some(row=>sameQueuedPath(row.path,contextMenu.path||''))
+            ?'삭제 목록에서 제외':'삭제 목록에 추가'} ({queueHotkey})
+        </button>}
+      <button type="button" role="menuitem" onClick={()=>void runContextAction('list')}>
+        <ListChecks size={15}/> 삭제 목록 관리 ({deleteQueue.length})
       </button>
       {contextMenu.kind!=='author'&&book?.sourcePath&&
         (contextMenu.id>0?contextMenu.id===activeId:

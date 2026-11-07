@@ -1,5 +1,7 @@
 mod account_native;
 mod profile_instance;
+#[cfg(all(windows, feature = "plugin-library"))]
+mod external_viewer;
 mod release_self_test;
 mod storage_paths;
 mod native_build_profile;
@@ -728,6 +730,12 @@ async fn library_reader_recycle(id:i64)->Result<Value,String>{
     tauri::async_runtime::spawn_blocking(move||library_reader::recycle_source(id))
         .await.map_err(|e|format!("뷰어 작품 휴지통 이동 실패: {e}"))?
 }
+#[cfg(feature = "plugin-library")]
+#[tauri::command]
+async fn library_reader_recycle_queue(items:Vec<library_reader::RecycleCandidate>)->Result<Value,String>{
+    tauri::async_runtime::spawn_blocking(move||library_reader::recycle_queue(items))
+        .await.map_err(|e|format!("일괄 휴지통 이동 실패: {e}"))?
+}
 /// Reveal the currently opened work in the OS file manager. Indexed items are
 /// looked up by ID; external works may ONLY reveal an active native session.
 #[cfg(feature = "plugin-library")]
@@ -950,6 +958,8 @@ tauri::generate_handler![
             #[cfg(feature = "plugin-library")]
             library_reader_open_path,
             #[cfg(feature = "plugin-library")]
+            desktop_external_file_poll,
+            #[cfg(feature = "plugin-library")]
             library_reader_adjacent,
             #[cfg(feature = "plugin-library")]
             library_reader_adjacent_video,
@@ -957,6 +967,8 @@ tauri::generate_handler![
             library_reader_move,
             #[cfg(feature = "plugin-library")]
             library_reader_recycle,
+            #[cfg(feature = "plugin-library")]
+            library_reader_recycle_queue,
             #[cfg(feature = "plugin-library")]
             library_reader_reveal,
             #[cfg(feature = "plugin-library")]
@@ -1034,6 +1046,19 @@ tauri::generate_handler![
         ]
 }
 pub fn run_release_self_test(input:&str)->Result<(),String>{release_self_test::run(input)}
+#[cfg(all(windows, feature = "plugin-library"))]
+pub fn queue_external_from_current_args(){
+    if let Err(error)=external_viewer::enqueue_args(std::env::args_os()){
+        eprintln!("[NVideo Explorer viewer] {error}");
+    }
+}
+#[cfg(feature = "plugin-library")]
+#[tauri::command]
+fn desktop_external_file_poll()->Option<Value>{
+    #[cfg(windows)]{external_viewer::take()}
+    #[cfg(not(windows))]{None}
+}
+
 
 pub fn run() {
     #[cfg(feature = "native-selective")]

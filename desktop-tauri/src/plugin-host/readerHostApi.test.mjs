@@ -12,13 +12,14 @@ const outlet=read('../plugins/reader/ReaderPluginOutlet.tsx');
 test('Host provides a typed Reader render port via Reader public entrypoint',()=>{
  assert.match(sdk,/export interface ReaderMountProps/);
  assert.match(sdk,/readonly itemId:number/);
+ assert.match(sdk,/readonly externalPath\?:string/);
  assert.match(sdk,/readonly onClose:\(lastItemId\?:number\)=>void/);
  assert.doesNotMatch(sdk,/onSearchHitomi/);
  assert.match(sdk,/readonly onMoveResult\?:\(message:string\)=>void/);
  assert.match(sdk,/export type ReaderRenderPort=\(request:ReaderMountProps\)=>ReactNode/);
  assert.match(host,/renderReader:ReaderRenderPort/);
  assert.match(app,/const renderReader:ReaderRenderPort=props=><ReaderPluginOutlet \{\.\.\.props\}\/>/);
- assert.match(app,/<LibraryPluginPage host=\{\{renderReader\}\}\/>/);
+ assert.match(app,/<LibraryPluginPage host=\{\{renderReader,externalOpen:externalOpen \?\? undefined\}\}\/>/);
  assert.match(outlet,/import LibraryReader from '\.\/views\/LibraryReader'/);
  assert.match(outlet,/return <LibraryReader \{\.\.\.props\}\/>/);
  assert.match(page,/renderReader=\{host\.renderReader\}/);

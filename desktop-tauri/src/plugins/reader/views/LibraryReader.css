@@ -285,3 +285,19 @@
 .reader-directory .native-reader-top button{background:var(--panel-hover);border-color:var(--line);color:var(--text)}
 
 .desktop-app-frame .native-reader.reader-directory{top:38px}
+
+
+/* Review-only queue shared by the image reader and the native video player. */
+.native-reader-queue-modal{width:min(730px,92vw);max-height:85vh;display:flex;flex-direction:column;gap:10px;}
+.native-reader-queue-shortcut{display:flex;align-items:center;gap:12px;font-size:13px;}
+.native-reader-queue-shortcut select{padding:6px 10px;background:#192c3b;color:#edf5ff;border:1px solid #68839a;border-radius:8px;}
+.native-reader-queue-items{overflow:auto;min-height:64px;max-height:45vh;list-style:none;margin:0;padding:0;display:grid;gap:5px;}
+.native-reader-queue-items li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 10px;border:1px solid #3d5265;border-radius:7px;background:#192633;}
+.native-reader-queue-items li span{display:grid;gap:2px;min-width:0;}
+.native-reader-queue-items li strong{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.native-reader-queue-items li small{font-size:10px;opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.native-reader-queue-items button,.native-reader-queue-actions button{padding:7px 10px;border:1px solid #52697d;border-radius:7px;color:#edf3ff;background:#283849;cursor:pointer;}
+.native-reader-queue-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+.native-reader-queue-actions button.danger{background:#743743;color:#fff0f2;border-color:#b55b6c;}
+.native-reader-queue-actions button:disabled{opacity:.5;cursor:not-allowed;}
+.native-reader-queue-empty{padding:30px;text-align:center;color:#acbdce;}

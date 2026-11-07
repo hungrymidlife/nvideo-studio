@@ -6,7 +6,7 @@ import {mkdtempSync,mkdirSync,writeFileSync,rmSync,symlinkSync,readFileSync} fro
 import {authCspOverride} from './service-csp.mjs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {profileIds,releasePlan,assertSmoke,toolPolicy,safeFiles,hash,releaseEnvironment,assertPlainFile,requiredTools} from './release-plan.mjs';
+import {profileIds,releasePlan,assertSmoke,toolPolicy,safeFiles,hash,releaseEnvironment,assertPlainFile,requiredTools,validateReleaseServices} from './release-plan.mjs';
 test('IDs reject traversal, whitespace, shell syntax, duplicate and empty values',()=>{
  for(const value of ['', '../core','core&whoami','core;whoami','Core','core release','core,core','core,','--strict-clean','a'.repeat(41)])assert.throws(()=>profileIds(value));
  assert.deepEqual(profileIds('core-release,library-release'),['core-release','library-release']);
@@ -90,6 +90,32 @@ test('build environment removes legacy selectors and test gates receive no profi
  assert.equal(Object.hasOwn(env,'NVIDEO_BUNDLE_EXCLUDE'),false);assert.equal(Object.hasOwn(env,'NVIDEO_BUNDLE_EXAMPLE'),false);
  assert.equal(parent.NVIDEO_BUNDLE_EXCLUDE,'sites');
 });
+test('board-enabled release rejects offline service placeholders before packaging',()=>{
+ const board={plugins:['nvideo.board','nvideo.library','nvideo.settings']};
+ const other={plugins:['nvideo.library','nvideo.settings']};
+ assert.equal(validateReleaseServices({},other),true);
+ assert.throws(()=>validateReleaseServices({},board),/NVIDEO_AUTH_URL.*NVIDEO_SUPPORTER_API_URL.*NVIDEO_BOARD_API_BASE_URL/);
+ const configured={
+  NVIDEO_AUTH_URL:'https://auth.example.org/neondb/auth',
+  NVIDEO_SUPPORTER_API_URL:'https://supporter.example.org/supporter',
+  NVIDEO_BOARD_API_BASE_URL:'https://board.example.org'
+ };
+ assert.equal(validateReleaseServices(configured,board),true);
+ for(const [name,value] of [
+  ['NVIDEO_BOARD_API_BASE_URL','https://board.example.invalid'],
+  ['NVIDEO_BOARD_API_BASE_URL','http://board.example.org'],
+  ['NVIDEO_BOARD_API_BASE_URL','https://board.example.org/posts'],
+  ['NVIDEO_AUTH_URL','https://auth.example.invalid/neondb/auth'],
+  ['NVIDEO_AUTH_URL','https://auth.example.org/bad'],
+  ['NVIDEO_SUPPORTER_API_URL','https://supporter.example.org/'],
+ ]){
+  assert.throws(()=>validateReleaseServices({...configured,[name]:value},board),
+    new RegExp(name));
+ }
+ const script=readFileSync(new URL('./release-build.mjs',import.meta.url),'utf8');
+ assert.match(script,/if\(command!=='check'\)for\(const plan of plans\)validateReleaseServices\(process\.env,plan\)/);
+});
+
 test('tool validation reads only the selected file and checks its ancestors',()=>{
  const root=mkdtempSync(join(tmpdir(),'nvideo-tool-'));
  try{const file=join(root,'tool.dll');writeFileSync(file,'fixture');assert.equal(assertPlainFile(file),file);assert.throws(()=>assertPlainFile(root));}
@@ -115,7 +141,12 @@ test('custom Auth HTTPS host is allowed by DEV and RELEASE WebView2 CSP',()=>{
  assert.ok(csp.includes("media-src 'self' "));
  assert.equal(config.app.security.csp,original,'do not mutate checked-in config');
  assert.ok(authCspOverride(config).app.security.csp.includes('https://auth.example.invalid'));
- for(const invalid of ['http://localhost:5000/auth','https://user:password@login.example.org/auth','javascript:alert(1)','invalid-url']){
+ // Preserve credential-in-URL rejection without storing a literal
+ // username:password URL in any checked-in public source file.
+ const synthetic=new URL('https://login.example.org/auth');
+ synthetic.username='example-user';
+ synthetic.password='example-password';
+ for(const invalid of ['http://localhost:5000/auth',synthetic.href,'javascript:alert(1)','invalid-url']){
   assert.throws(()=>authCspOverride(config,invalid),/HTTPS URL/);
  }
  const released=readFileSync(new URL('./release-build.mjs',import.meta.url),'utf8');

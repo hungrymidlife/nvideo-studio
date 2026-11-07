@@ -34,6 +34,7 @@ mod windows_impl{
     const WM_LBUTTONDOWN:u32=0x0201;
     const WM_LBUTTONUP:u32=0x0202;
     const WM_LBUTTONDBLCLK:u32=0x0203;
+    const WM_RBUTTONUP:u32=0x0205;
     const WM_MOUSEMOVE:u32=0x0200;
     const WM_MOUSEWHEEL:u32=0x020a;
     const WM_CAPTURECHANGED:u32=0x0215;
@@ -94,7 +95,7 @@ mod windows_impl{
             0x0d=>Some("Enter"),0x1b=>Some("Escape"),0x20=>Some("Space"),
             0x25=>Some("ArrowLeft"),0x27=>Some("ArrowRight"),
             0x26=>Some("ArrowUp"),0x28=>Some("ArrowDown"),
-            0x7a=>Some("F11"),0x09=>Some("Tab"),
+            0x7a=>Some("F11"),0x09=>Some("Tab"),0x2e=>Some("Delete"),
             0xbc=>Some("Comma"),0xbe=>Some("Period"),
             0xdb=>Some("BracketLeft"),0xdd=>Some("BracketRight"),
             0x46=>Some("KeyF"),0x4d=>Some("KeyM"),
@@ -120,6 +121,11 @@ mod windows_impl{
         }
         let input=unsafe{&mut *(data as *mut NativeInput)};
         match msg{
+            WM_RBUTTONUP=>{
+                let _=input.app.emit("library-libmpv-native-input",
+                    json!({"key":"VideoContext","source":"win32"}));
+                return 0;
+            },
             WM_MOUSEWHEEL=>{
                 let delta=(wparam>>16) as u16 as i16;
                 if delta!=0{
@@ -174,6 +180,23 @@ mod windows_impl{
                 return 0;
             },
             WM_KEYDOWN|WM_SYSKEYDOWN=>{
+                // Forward the deletion-queue chords when the Win32 video HWND
+                // owns focus instead of the WebView.
+                let ctrl=unsafe{GetKeyState(0x11)}<0;
+                let shifted=unsafe{GetKeyState(0x10)}<0;
+                let queue_key=match (ctrl,shifted,wparam){
+                    (true,false,0x44)=>Some("CtrlKeyD"),
+                    (true,false,0x51)=>Some("CtrlKeyQ"),
+                    (true,true,0x44)=>Some("CtrlShiftKeyD"),
+                    _=>None
+                };
+                if let Some(key)=queue_key{
+                    if lparam as usize&(1<<30)==0{
+                        let _=input.app.emit("library-libmpv-native-input",
+                            json!({"key":key,"source":"win32"}));
+                    }
+                    return 0;
+                }
                 if let Some(key)=native_key(wparam){
                     let shifted=unsafe{GetKeyState(0x10)}<0;
                     let key=match (key,shifted){
@@ -253,6 +276,7 @@ mod windows_impl{
     const KEY_BINDINGS:&str=concat!(
         "ENTER script-message nvideo-input Enter\n",
         "ESC script-message nvideo-input Escape\n",
+        "DEL script-message nvideo-input Delete\n",
         "SPACE script-message nvideo-input Space\n",
         "LEFT script-message nvideo-input ArrowLeft\n",
         "RIGHT script-message nvideo-input ArrowRight\n",
@@ -277,6 +301,10 @@ mod windows_impl{
         "p script-message nvideo-input KeyP\n",
         "MBTN_LEFT script-message nvideo-input VideoClick\n",
         "MBTN_LEFT_DBL script-message nvideo-input FullScreen\n",
+        "MBTN_RIGHT script-message nvideo-input VideoContext\n",
+        "Ctrl+d script-message nvideo-input CtrlKeyD\n",
+        "Ctrl+q script-message nvideo-input CtrlKeyQ\n",
+        "Ctrl+Shift+d script-message nvideo-input CtrlShiftKeyD\n",
     );
     #[derive(Clone,Copy)]
     struct Api{create:Create,init:Init,opt:OptionFn,cmd:CommandFn,
@@ -312,6 +340,7 @@ mod windows_impl{
             assert_eq!(native_key(0x1b),Some("Escape"));
             assert_eq!(native_key(0x7a),Some("F11"));
             assert_eq!(native_key(0x20),Some("Space"));
+            assert_eq!(native_key(0x2e),Some("Delete"));
             assert_eq!(native_key(0x25),Some("ArrowLeft"));
             assert_eq!(native_key(0x27),Some("ArrowRight"));
             assert_eq!(native_key(0x4d),Some("KeyM"));
@@ -683,11 +712,12 @@ mod windows_impl{
                     let key=unsafe{CStr::from_ptr(args[1]).to_bytes()};
                     let Some(key)=std::str::from_utf8(key).ok()else{continue};
                     if !matches!(key,
-                        "Enter"|"Escape"|"Space"|"F11"|"Tab"|
+                        "Enter"|"Escape"|"Delete"|"Space"|"F11"|"Tab"|
                         "ArrowLeft"|"ArrowRight"|"ShiftArrowLeft"|"ShiftArrowRight"|
                         "ArrowUp"|"ArrowDown"|"WheelUp"|"WheelDown"|"VideoClick"|"FullScreen"|
                         "Comma"|"Period"|"BracketLeft"|"BracketRight"|
-                        "KeyF"|"KeyM"|"KeyJ"|"KeyK"|"KeyL"|"KeyS"|"KeyP"){
+                        "KeyF"|"KeyM"|"KeyJ"|"KeyK"|"KeyL"|"KeyS"|"KeyP"|
+                        "VideoContext"|"CtrlKeyD"|"CtrlKeyQ"|"CtrlShiftKeyD"){
                         continue;
                     }
                     let _=app.emit("library-libmpv-native-input",
@@ -1007,6 +1037,7 @@ mod windows_impl{
     fn snapshot(p:&Session)->Value{
         let result=json!({"active":true,"paused":flag(p,"pause").unwrap_or(false),
             "position":number(p,"time-pos").unwrap_or(0.0),
+            "eofReached":flag(p,"eof-reached").unwrap_or(false),
             "duration":number(p,"duration").unwrap_or(0.0),
             "volume":number(p,"volume").unwrap_or(100.0),
             "muted":flag(p,"mute").unwrap_or(false),
@@ -1037,6 +1068,12 @@ mod windows_impl{
     pub(super) fn control(action:String,value:Option<f64>,session_key:Option<String>)->Result<(),String>{
         let args=match action.as_str(){
             "play"=>vec!["set".into(),"pause".into(),"no".into()],
+            "loop"=>{
+                let enabled=value.filter(|v|*v==0.0||*v==1.0)
+                    .ok_or("반복 재생 설정 오류")?;
+                vec!["set".into(),"loop-file".into(),
+                    if enabled==1.0{"inf".into()}else{"no".into()}]
+            },
             "pause"=>vec!["set".into(),"pause".into(),"yes".into()],
             "toggle"=>vec!["cycle".into(),"pause".into()],
             "seek"|"volume"|"speed"=>{
