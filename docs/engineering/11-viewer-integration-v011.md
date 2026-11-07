@@ -49,6 +49,8 @@ are revalidated before opening, and do not require an HTTP listener.
 - Settings are persisted locally. Native libmpv keyboard focus uses input
   forwarding without global hooks.
 
+For ownership, external file placement, local/Jenkins injection, and the release checklist, see [External service configuration contract](12-external-service-config.md). Do not add real endpoints to this repository.
+
 ## Board, Auth and supporter endpoints in a local release build
 
 Unlike the private developer tree, the public source intentionally contains
