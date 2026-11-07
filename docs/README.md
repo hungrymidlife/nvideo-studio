@@ -13,6 +13,7 @@
 | [07 빌드와 검증](engineering/07-build-and-validation.md) | 재현 가능한 실행 절차와 아직 남은 이슈는 무엇인가? |
 | [08 라이선스](legal/08-licenses-and-third-party.md) | 직접 작성한 코드와 외부 기술의 권리는 어떻게 다른가? |
 | [09 사례 설명](portfolio/09-case-study.md) | 면접과 소개에서 어떤 문제 해결 과정을 설명할 수 있는가? |
+| [외부 서비스 설정 관리 규약](engineering/12-external-service-config.md) | `.env`·Neon·게시판·Ko-fi 설정을 어디에 보관하고 어떻게 빌드에 주입하는가? |
 | [직접 의존성 목록](legal/THIRD_PARTY_DEPENDENCIES.md) | 실제 잠금 버전과 선언 라이선스는 무엇인가? |
 | [메타데이터 JSON](legal/dependency-inventory.json) | lockfile 해시와 Rust 해석 결과를 기계적으로 확인할 수 있는가? |
 
