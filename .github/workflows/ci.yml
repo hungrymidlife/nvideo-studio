@@ -32,6 +32,8 @@ jobs:
         run: npm run test:safety-ui
       - name: Reader layout regressions
         run: npm run test:reader-layout
+      - name: Viewer queue and playback model regressions
+        run: npm run test:viewer-queue
       - name: TypeScript and Vite production build
         run: npm run build
   rust-windows:
