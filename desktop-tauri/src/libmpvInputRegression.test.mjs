@@ -52,7 +52,7 @@ test('WebView and native shortcuts share one configurable, conflict-checked mapp
  assert.match(ui,/libmpvKeyFromKeyboard\(event\)/);
  assert.match(ui,/listen<\{key:string;source\?:string\}>/);
  assert.match(ui,/previous\.source!==source&&/);
- assert.match(ui,/now-previous\.at<\(key==='VideoClick'\?240:90\)/);
+ assert.match(ui,/now-previous\.at<\(key==='VideoClick'\?240:\s*key==='VideoContext'\|\|nativeDeleteHotkey\(key\)\?320:90\)/);
  assert.match(ui,/key==='F11'\|\|key==='FullScreen'/);
  assert.match(ui,/settingsOpen\)\{setSettingsOpen\(false\)/);
  assert.match(reader,/if\(isVideo&&embeddedVideo/);
