@@ -957,7 +957,7 @@ tauri::generate_handler![
             library_reader_open,
             #[cfg(feature = "plugin-library")]
             library_reader_open_path,
-            #[cfg(all(windows, feature = "plugin-library"))]
+            #[cfg(feature = "plugin-library")]
             desktop_external_file_poll,
             #[cfg(feature = "plugin-library")]
             library_reader_adjacent,
@@ -1052,9 +1052,12 @@ pub fn queue_external_from_current_args(){
         eprintln!("[NVideo Explorer viewer] {error}");
     }
 }
-#[cfg(all(windows, feature = "plugin-library"))]
+#[cfg(feature = "plugin-library")]
 #[tauri::command]
-fn desktop_external_file_poll()->Option<Value>{external_viewer::take()}
+fn desktop_external_file_poll()->Option<Value>{
+    #[cfg(windows)]{external_viewer::take()}
+    #[cfg(not(windows))]{None}
+}
 
 
 pub fn run() {
