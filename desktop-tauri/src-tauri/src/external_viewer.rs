@@ -49,14 +49,15 @@ pub(crate) fn enqueue_args(mut args: impl Iterator<Item=OsString>) -> Result<(),
     let Some(kind) = args.next().and_then(|v|v.into_string().ok()) else {return Ok(());};
     let Some(file) = args.next() else { return Ok(()); };
     if args.next().is_some() { return Err("Only one selected file is supported".into()); }
+    let file = PathBuf::from(file);
     let kind = if kind == "auto" {
-        let ext = PathBuf::from(&file).extension().and_then(|x|x.to_str())
+        let ext = file.extension().and_then(|x|x.to_str())
             .unwrap_or("").to_ascii_lowercase();
         if allowed("image",&ext){"image".to_owned()}
         else if allowed("video",&ext){"video".to_owned()}
         else {return Err("Unsupported file extension for viewer".into());}
     }else{kind};
-    let path = validate(&kind, &PathBuf::from(file))?;
+    let path = validate(&kind, &file)?;
     let folder = inbox()?;
     fs::create_dir_all(&folder).map_err(|e|e.to_string())?;
     let name = format!("{:020}-{}", now_ms(), uuid::Uuid::new_v4());
