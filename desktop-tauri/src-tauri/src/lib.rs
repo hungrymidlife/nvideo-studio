@@ -730,6 +730,12 @@ async fn library_reader_recycle(id:i64)->Result<Value,String>{
     tauri::async_runtime::spawn_blocking(move||library_reader::recycle_source(id))
         .await.map_err(|e|format!("뷰어 작품 휴지통 이동 실패: {e}"))?
 }
+#[cfg(feature = "plugin-library")]
+#[tauri::command]
+async fn library_reader_recycle_queue(items:Vec<library_reader::RecycleCandidate>)->Result<Value,String>{
+    tauri::async_runtime::spawn_blocking(move||library_reader::recycle_queue(items))
+        .await.map_err(|e|format!("일괄 휴지통 이동 실패: {e}"))?
+}
 /// Reveal the currently opened work in the OS file manager. Indexed items are
 /// looked up by ID; external works may ONLY reveal an active native session.
 #[cfg(feature = "plugin-library")]
@@ -961,6 +967,8 @@ tauri::generate_handler![
             library_reader_move,
             #[cfg(feature = "plugin-library")]
             library_reader_recycle,
+            #[cfg(feature = "plugin-library")]
+            library_reader_recycle_queue,
             #[cfg(feature = "plugin-library")]
             library_reader_reveal,
             #[cfg(feature = "plugin-library")]
