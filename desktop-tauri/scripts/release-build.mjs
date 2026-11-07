@@ -4,7 +4,7 @@ import {existsSync,readFileSync,writeFileSync,mkdirSync,cpSync,copyFileSync,rmSy
 import {join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {authCspOverride} from './service-csp.mjs';
-import {releasePlan,profileIds,safeFiles,assertSmoke,toolPolicy,hash,releaseEnvironment,assertPlainFile,requiredTools} from './release-plan.mjs';
+import {releasePlan,profileIds,safeFiles,assertSmoke,toolPolicy,hash,releaseEnvironment,assertPlainFile,requiredTools,validateReleaseServices} from './release-plan.mjs';
 const root=realpathSync(fileURLToPath(new URL('../',import.meta.url)));
 const args=process.argv.slice(2), command=args.shift();
 const strict=args.includes('--strict-clean'); const ids=profileIds(args.filter(x=>x!=='--strict-clean'));
@@ -18,6 +18,9 @@ const plans=ids.map(id=>{
  plan.tauriConfig.app=serviceCsp.app;
  return plan;
 });
+// Reject a board-enabled binary with placeholder offline endpoints, before
+// any expensive cargo/tauri build. Only process environment values are used.
+if(command!=='check')for(const plan of plans)validateReleaseServices(process.env,plan);
 function run(bin,argv,env={},capture=false,timeout=7200000){
  const result=spawnSync(bin,argv,{cwd:root,env:{...releaseEnvironment(process.env),...env},stdio:capture?'pipe':'inherit',encoding:'utf8',timeout,windowsHide:true});
  if(result.error||result.status!==0)throw Error(`${bin} failed: ${result.error?.message||result.stderr||result.status}`);
