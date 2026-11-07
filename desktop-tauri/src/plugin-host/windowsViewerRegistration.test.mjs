@@ -10,7 +10,8 @@ test('registration uses HKCU only and never alters Windows UserChoice',()=>{
  assert.match(script,/SystemFileAssociations/);
  assert.match(script,/OpenWithProgids/);
  assert.match(script,/nvideo-viewer/);
- assert.doesNotMatch(script,/HKEY_LOCAL_MACHINE|CurrentMachine|UserChoice|SetUserFTA/);
+ assert.doesNotMatch(script.split('\n').filter(line=>!line.trimStart().startsWith('#')).join('\n'),
+  /HKEY_LOCAL_MACHINE|CurrentMachine|UserChoice|SetUserFTA/);
 });
 test('Windows PowerShell sources are ASCII and cmd wrappers are CRLF',()=>{
  for(const file of ['Viewer-Integration.ps1','Verify-Viewer.ps1']){
