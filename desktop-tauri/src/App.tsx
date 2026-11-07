@@ -440,7 +440,7 @@ export default function App() {
 
         {libraryVisited && builtinPlugins.availability('nvideo.library',disabledPluginIds)==='available' && <div style={{display:view === 'library' ? 'block' : 'none'}}>
           <PluginErrorBoundary pluginId="nvideo.library" onOpenManager={__NVIDEO_DEVELOPER_TOOLS__?()=>setPluginManagerOpen(true):undefined}>
-            <LibraryPluginPage host={{renderReader,externalOpen}}/></PluginErrorBoundary></div>}
+            <LibraryPluginPage host={{renderReader,externalOpen:externalOpen ?? undefined}}/></PluginErrorBoundary></div>}
 
 
 
