@@ -37,6 +37,37 @@ export function toolPolicy(plugins){
  return tools;
 }
 
+// Public snapshots intentionally have no operator endpoints. A release with
+// Board enabled must never compile a working-looking but offline-only UI.
+// Read only values explicitly supplied to the build process; do not parse a
+// checked-out .env or load private Ko-fi/server-side credentials.
+export function validateReleaseServices(parent,plan){
+ if(!plan.plugins.includes('nvideo.board'))return true;
+ const required=[
+  ['NVIDEO_AUTH_URL','/neondb/auth'],
+  ['NVIDEO_SUPPORTER_API_URL','/supporter'],
+  ['NVIDEO_BOARD_API_BASE_URL','/']
+ ];
+ const invalid=[];
+ for(const [name,path] of required){
+  const value=parent[name];
+  if(typeof value!=='string'||!value.trim()){invalid.push(name);continue;}
+  try{
+   const endpoint=new URL(value);
+   if(endpoint.protocol!=='https:'||!endpoint.hostname||
+     endpoint.hostname.endsWith('.invalid')||endpoint.hostname==='localhost'||
+     endpoint.username||endpoint.password||endpoint.port||
+     endpoint.pathname!==path||endpoint.search||endpoint.hash)invalid.push(name);
+  }catch{invalid.push(name);}
+ }
+ if(invalid.length)throw Error(
+  'Board-enabled release requires configured public HTTPS service endpoints: '+
+  invalid.join(', ')+'. Set these in the PowerShell/Jenkins build environment. '+
+  'The release builder does not read .env automatically; do not embed server-side secrets.'
+ );
+ return true;
+}
+
 export function releaseEnvironment(parent,plan){
  const env={...parent};
  for(const key of ['NVIDEO_PLUGIN_BUILD_PROFILE','NVIDEO_BUNDLE_OUT_DIR','NVIDEO_BUNDLE_EXCLUDE','NVIDEO_BUNDLE_EXAMPLE','TAURI_CONFIG'])delete env[key];
