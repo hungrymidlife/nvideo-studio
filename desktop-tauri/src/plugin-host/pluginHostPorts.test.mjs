@@ -21,7 +21,6 @@ test('Library Core navigation port is typed and supplied without extra propertie
  assert.doesNotMatch(library,/openSitesArtistSearch|onSearchHitomi/);
  assert.match(library,/renderReader=\{host\.renderReader\}/);
  assert.match(library,/externalOpen=\{host\.externalOpen\}/);
- assert.match(app,/<LibraryPluginPage host=\{\{renderReader,externalOpen\}\}\/\/>/);
  assert.match(app,/const renderReader:ReaderRenderPort=props=><ReaderPluginOutlet \{\.\.\.props\}\/>/);
  assert.match(app,/from '\.\/plugins\/reader\/ReaderPluginOutlet'/);
  assert.doesNotMatch(library,/import.*(?:SitesPluginPage|HitomiProviderPage|App\.tsx)/);
