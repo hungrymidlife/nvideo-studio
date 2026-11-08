@@ -39,7 +39,7 @@ Write-Host ''
 Write-Host ('Job: ' + $JobName)
 Write-Host ('Repository: ' + $RepoFullName + ', branch: ' + $Branch)
 Write-Host ('Pipeline: ' + $JenkinsfilePath + ', credential: ' + $ScmCredentialsId)
-Write-Host 'Polling: H/2 * * * *'
+Write-Host 'Polling: H/30 * * * *'
 Write-Warning 'Jenkinsfile code runs locally as the Jenkins Windows user. Only register trusted repositories.'
 if ((Read-Host 'Create this job? [y/N]').Trim().ToLowerInvariant() -ne 'y'){Write-Host '[INFO] Cancelled.';exit 0}
 $secret = Read-Host 'Jenkins API token (hidden, NOT your login password)' -AsSecureString
@@ -111,7 +111,7 @@ try {
   <scriptPath>$pipelinePath</scriptPath><lightweight>true</lightweight>
  </definition>
  <triggers><hudson.triggers.SCMTrigger>
-  <spec>H/2 * * * *</spec><ignorePostCommitHooks>true</ignorePostCommitHooks>
+  <spec>H/30 * * * *</spec><ignorePostCommitHooks>true</ignorePostCommitHooks>
  </hudson.triggers.SCMTrigger></triggers>
  <disabled>false</disabled>
 </flow-definition>
