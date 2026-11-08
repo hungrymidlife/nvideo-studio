@@ -10,9 +10,9 @@ pipeline {
   parameters {
     string(name: 'RELEASE_PROFILES', defaultValue: '', description: 'Opt-in unsigned Windows portable profiles, comma-separated (e.g. core-release,media-release,library-release). Empty: existing verification only.')
   }
-  // Poll changes every ~2 minutes (Jenkins H/2): main always validates, development branches require [ci-ready].
+  // Poll changes every ~30 minutes (Jenkins H/30): main always validates, development branches require [ci-ready].
   triggers {
-    pollSCM('H/2 * * * *')
+    pollSCM('H/30 * * * *')
   }
   stages {
     stage('Checkout configured SCM branch') {
